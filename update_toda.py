@@ -1,59 +1,18 @@
 import os
-import io
+import csv
 import re
 import time
-import socket
-import ftplib
 import datetime
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
-
-# ==============================================================================
-# 環境変数（GitHub Secretsから自動読み込み）
-# ==============================================================================
-FTP_HOST = os.environ["FC2_FTP_HOST"]
-FTP_USER = os.environ["FC2_FTP_USER"]
-FTP_PASS = os.environ["FC2_FTP_PASS"]
-REMOTE_DIR = "demetodadata"
 
 JCD = "02"  # ボートレース戸田の場コード
+DATA_DIR = "demetodadata"
 JST = datetime.timezone(datetime.timedelta(hours=9))
 today_jst = datetime.datetime.now(JST).date()
 target_year = today_jst.year
-csv_filename = f"demetodadata_{target_year}.csv"
-columns_order = ["日付", "レース番号", "1着", "2着", "3着", "配当"]
-
-# ==============================================================================
-# FC2対策用 カスタムFTPクラス
-# （PASV応答のIPアドレスではなく、必ず接続元のFTP_HOSTにデータ接続する）
-# ==============================================================================
-class FC2FTP(ftplib.FTP):
-    def makepasv(self):
-        _, port = super().makepasv()
-        return self.host, port
-
-class FC2FTPS(ftplib.FTP_TLS):
-    def makepasv(self):
-        _, port = super().makepasv()
-        return self.host, port
-
-def connect_fc2_ftp():
-    """FTPS（TLS）または通常のFTPでFC2に接続する"""
-    try:
-        ftp = FC2FTPS(FTP_HOST, timeout=30)
-        ftp.login(FTP_USER, FTP_PASS)
-        ftp.prot_p()
-        ftp.set_pasv(True)
-        print("FTPS（暗号化）でFC2に接続しました。")
-        return ftp
-    except Exception as e:
-        print(f"FTPS接続をスキップし通常FTPで接続します: {e}")
-        ftp = FC2FTP(FTP_HOST, timeout=30)
-        ftp.login(FTP_USER, FTP_PASS)
-        ftp.set_pasv(True)
-        print("通常FTPでFC2に接続しました。")
-        return ftp
+csv_filepath = os.path.join(DATA_DIR, f"demetodadata_{target_year}.csv")
+COLUMNS_ORDER = ["日付", "レース番号", "1着", "2着", "3着", "配当"]
 
 session = requests.Session()
 session.headers.update({
@@ -137,30 +96,30 @@ def parse_race_records(soup, target_date):
 
 def main():
     print(f"=== ボートレース戸田 自動差分更新開始 ({today_jst} JST) ===")
+    os.makedirs(DATA_DIR, exist_ok=True)
 
-    # 1. FC2サーバーに接続して現在のCSVを取得
-    ftp = connect_fc2_ftp()
-
-    try:
-        ftp.cwd(REMOTE_DIR)
-    except ftplib.error_perm:
-        ftp.mkd(REMOTE_DIR)
-        ftp.cwd(REMOTE_DIR)
-
-    existing_df = pd.DataFrame(columns=columns_order)
-    buf = io.BytesIO()
-
-    try:
-        ftp.retrbinary(f"RETR {csv_filename}", buf.write)
-        buf.seek(0)
-        existing_df = pd.read_csv(buf, encoding="utf-8-sig")
-        print(f"既存ファイル '{csv_filename}' を取得しました（現在 {len(existing_df)} レース）")
-    except ftplib.error_perm:
-        print(f"'{csv_filename}' がサーバー上にまだ存在しないため新規作成します。")
+    # 1. 既存CSVを読み込み
+    existing_records = []
+    if os.path.exists(csv_filepath):
+        with open(csv_filepath, "r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if row.get("日付") and row.get("レース番号"):
+                    existing_records.append({
+                        "日付": row["日付"].strip(),
+                        "レース番号": int(row["レース番号"]),
+                        "1着": int(row["1着"]),
+                        "2着": int(row["2着"]),
+                        "3着": int(row["3着"]),
+                        "配当": int(row["配当"])
+                    })
+        print(f"既存ファイル '{csv_filepath}' を読み込みました（現在 {len(existing_records)} レース）")
+    else:
+        print(f"'{csv_filepath}' が存在しないため新規作成します。")
 
     # 2. 差分取得の開始日を決定
-    if len(existing_df) > 0:
-        last_date_str = str(existing_df["日付"].max())
+    if len(existing_records) > 0:
+        last_date_str = max(r["日付"] for r in existing_records)
         last_date = datetime.datetime.strptime(last_date_str, "%Y-%m-%d").date()
         fetch_start_date = last_date + datetime.timedelta(days=1)
     else:
@@ -168,7 +127,6 @@ def main():
 
     if fetch_start_date > today_jst:
         print("すでに最新日付まで取得済みです。更新を終了します。")
-        ftp.quit()
         return
 
     print(f"差分取得対象期間: {fetch_start_date} ～ {today_jst}")
@@ -178,8 +136,7 @@ def main():
     print(f"対象期間内の戸田開催日数: {len(held_dates)} 日")
 
     if len(held_dates) == 0:
-        print("新規の開催日がありませんでした。FTPアップロードをスキップします。")
-        ftp.quit()
+        print("新規の開催日がありませんでした。更新をスキップします。")
         return
 
     new_records = []
@@ -200,24 +157,23 @@ def main():
 
     if len(new_records) == 0:
         print("追加できる確定レース結果がありませんでした。")
-        ftp.quit()
         return
 
-    # 4. 既存データと結合・重複排除・ソート
-    new_df = pd.DataFrame(new_records, columns=columns_order)
-    combined_df = pd.concat([existing_df, new_df], ignore_index=True)
-    combined_df.drop_duplicates(subset=["日付", "レース番号"], keep="last", inplace=True)
-    combined_df.sort_values(by=["日付", "レース番号"], ascending=[True, True], inplace=True)
+    # 4. 既存データと結合・重複排除・日付＋レース番号順にソート
+    merged_map = {}
+    for rec in existing_records + new_records:
+        key = (rec["日付"], rec["レース番号"])
+        merged_map[key] = rec
 
-    # 5. FC2サーバーへ上書きアップロード
-    out_buf = io.BytesIO()
-    out_buf.write(combined_df.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig"))
-    out_buf.seek(0)
+    sorted_records = sorted(merged_map.values(), key=lambda x: (x["日付"], x["レース番号"]))
 
-    ftp.storbinary(f"STOR {csv_filename}", out_buf)
-    ftp.quit()
+    # 5. CSVファイルに上書き保存
+    with open(csv_filepath, "w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=COLUMNS_ORDER)
+        writer.writeheader()
+        writer.writerows(sorted_records)
 
-    print(f"完了！ '{REMOTE_DIR}/{csv_filename}' を更新しました（累計 {len(combined_df)} レース）")
+    print(f"完了！ '{csv_filepath}' を更新しました（累計 {len(sorted_records)} レース）")
 
 if __name__ == "__main__":
     main()
