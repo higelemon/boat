@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ボートレース戸田 3連単 コスパの良い出目ランキング</title>
+  <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #115e59;
+      --accent: #e60012;
+      --bg: #f4f7fa;
+      --card-bg: #ffffff;
+      --text: #222222;
+      --sub-text: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      padding: 12px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      transition: outline 0.2s;
+    }
+
+    .container.dragover {
+      outline: 3px dashed var(--primary);
+      background-color: #f0fdfa;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 18px 14px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .latest-date-badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 14px;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 20px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    /* ローカル読込パネル */
+    .local-loader {
+      display: none;
+      background: #fffbeb;
+      border-bottom: 1px solid #fde68a;
+      padding: 14px 16px;
+      text-align: center;
+    }
+
+    .local-loader.visible {
+      display: block;
+    }
+
+    .local-loader p {
+      font-size: 0.82rem;
+      color: #92400e;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .btn-upload-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .file-btn {
+      display: inline-block;
+      background: #005bab;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+
+    .file-btn.secondary {
+      background: #475569;
+    }
+
+    .file-btn:hover {
+      opacity: 0.9;
+    }
+
+    /* コントロールバー */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    select, button.tab-btn {
+      padding: 7px 10px;
+      font-size: 0.84rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    button.tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .status-bar {
+      padding: 8px 14px;
+      font-size: 0.78rem;
+      color: var(--sub-text);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: space-between;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* テーブルスタイル */
+    .table-wrapper {
+      width: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      table-layout: fixed;
+    }
+
+    thead {
+      background: #eef3f8;
+      border-bottom: 2px solid var(--border);
+    }
+
+    th {
+      color: #334155;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 9px 4px;
+      word-break: keep-all;
+      line-height: 1.3;
+    }
+
+    .th-sub {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #475569;
+      margin-top: 2px;
+    }
+
+    td {
+      padding: 11px 4px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #fafcfe;
+    }
+
+    .rank-badge {
+      display: inline-block;
+      width: 26px;
+      height: 26px;
+      line-height: 26px;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 0.82rem;
+      background: #e2e8f0;
+      color: #334155;
+    }
+    .rank-1 { background: #ffd700; color: #5c4300; }
+    .rank-2 { background: #e0e0e0; color: #333333; }
+    .rank-3 { background: #cd7f32; color: #ffffff; }
+
+    /* ボートレース艇番カラー（5号艇：黄色） */
+    .deme-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-weight: 700;
+    }
+    .boat {
+      display: inline-block;
+      width: 23px;
+      height: 23px;
+      line-height: 21px;
+      border-radius: 4px;
+      font-size: 0.86rem;
+      text-align: center;
+      font-weight: 800;
+    }
+    .boat-1 { background: #ffffff; color: #111; border: 1px solid #999; }
+    .boat-2 { background: #222222; color: #fff; border: 1px solid #222; }
+    .boat-3 { background: #e60012; color: #fff; border: 1px solid #e60012; }
+    .boat-4 { background: #005bab; color: #fff; border: 1px solid #005bab; }
+    .boat-5 { background: #ffe600; color: #111; border: 1px solid #ccb800; }
+    .boat-6 { background: #009944; color: #fff; border: 1px solid #009944; }
+
+    .score-cell {
+      font-weight: 800;
+      color: var(--accent);
+      font-size: 0.96rem;
+    }
+
+    .rate-cell {
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .payout-cell {
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .sub-info {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: var(--sub-text);
+      margin-top: 2px;
+    }
+
+    .guide-msg {
+      padding: 28px 16px;
+      text-align: center;
+      color: #475569;
+      font-size: 0.88rem;
+    }
+
+    footer {
+      padding: 12px 14px;
+      text-align: center;
+      font-size: 0.74rem;
+      color: var(--sub-text);
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      line-height: 1.6;
+    }
+
+    /* スマホ画面最適化（幅600px以下） */
+    @media (max-width: 600px) {
+      body {
+        padding: 4px;
+      }
+
+      header {
+        padding: 14px 8px;
+      }
+
+      header h1 {
+        font-size: 1.05rem;
+      }
+
+      .latest-date-badge {
+        font-size: 0.75rem;
+        padding: 3px 10px;
+      }
+
+      .controls {
+        padding: 8px 10px;
+      }
+
+      select, button.tab-btn {
+        padding: 5px 7px;
+        font-size: 0.76rem;
+      }
+
+      .status-bar {
+        padding: 6px 10px;
+        font-size: 0.72rem;
+      }
+
+      th {
+        font-size: 0.68rem;
+        padding: 7px 2px;
+      }
+
+      .th-sub {
+        font-size: 0.62rem;
+      }
+
+      td {
+        padding: 8px 2px;
+        font-size: 0.82rem;
+      }
+
+      .rank-badge {
+        width: 22px;
+        height: 22px;
+        line-height: 22px;
+        font-size: 0.74rem;
+      }
+
+      .deme-box {
+        gap: 1px;
+      }
+
+      .boat {
+        width: 18px;
+        height: 18px;
+        line-height: 16px;
+        font-size: 0.74rem;
+        border-radius: 3px;
+      }
+
+      .score-cell {
+        font-size: 0.86rem;
+      }
+
+      .rate-cell {
+        font-size: 0.82rem;
+      }
+
+      .payout-cell {
+        font-size: 0.8rem;
+      }
+
+      .sub-info {
+        font-size: 0.63rem;
+        letter-spacing: -0.02em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="dropContainer">
+  <header>
+    <h1>ボートレース戸田 3連単 コスパの良い出目ランキング</h1>
+    <div id="latestDateBadge" class="latest-date-badge">データ読み込み中...</div>
+  </header>
+
+  <!-- ローカル環境で開いた場合のみ表示される手動読込バー -->
+  <div id="localLoader" class="local-loader">
+    <p>ローカル環境のため、下のボタンから「demetodadata」フォルダ（またはCSVファイル）を選択してください（画面へのドラッグ＆ドロップも可）</p>
+    <div class="btn-upload-group">
+      <label class="file-btn">
+        📁 demetodadataフォルダを選択
+        <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none;">
+      </label>
+      <label class="file-btn secondary">
+        📄 CSVファイルを複数選択
+        <input type="file" id="fileInput" accept=".csv" multiple style="display:none;">
+      </label>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="filter-group">
+      <label for="headFilter" style="font-size:0.82rem; font-weight:600;">1着艇:</label>
+      <select id="headFilter">
+        <option value="all">すべて表示</option>
+        <option value="1">1号艇 頭</option>
+        <option value="2">2号艇 頭</option>
+        <option value="3">3号艇 頭</option>
+        <option value="4">4号艇 頭</option>
+        <option value="5">5号艇 頭</option>
+        <option value="6">6号艇 頭</option>
+      </select>
+
+      <label for="yearFilter" style="font-size:0.82rem; font-weight:600; margin-left:2px;">年:</label>
+      <select id="yearFilter">
+        <option value="all">全期間</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <button id="btnTop10" class="tab-btn active">TOP 10</button>
+      <button id="btnAll" class="tab-btn">全120通り表示</button>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span id="loadedFilesInfo">データ集計中...</span>
+    <span id="countInfo"></span>
+  </div>
+
+  <div class="table-wrapper">
+    <table id="rankingTable">
+      <thead>
+        <tr>
+          <th style="width: 9%;">順位</th>
+          <th style="width: 21%;">出目</th>
+          <th style="width: 26%;">期待値<span class="th-sub">出現率×平均配当</span></th>
+          <th style="width: 22%;">出現率<span class="th-sub">出現回数</span></th>
+          <th style="width: 22%;">平均配当<span class="th-sub">最高配当</span></th>
+        </tr>
+      </thead>
+      <tbody id="rankingBody">
+        <tr><td colspan="5" class="guide-msg">読み込み中...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    ※「期待値（出現率 × 平均配当）」が高い順にランキング表示しています（1点100円均等買い時の1レースあたり平均回収額）。
+  </footer>
+</div>
+
+<script>
+  const DATA_DIR = './demetodadata';
+  const FILE_PREFIX = 'demetodadata_';
+  const START_YEAR = 2017;
+  const END_YEAR = new Date().getFullYear() + 1;
+
+  let allRawRecords = [];
+  let showAll = false;
+
+  function generateAll120Combinations() {
+    const list = [];
+    for (let a = 1; a <= 6; a++) {
+      for (let b = 1; b <= 6; b++) {
+        if (a === b) continue;
+        for (let c = 1; c <= 6; c++) {
+          if (a === c || b === c) continue;
+          list.push(`${a}-${b}-${c}`);
+        }
+      }
+    }
+    return list;
+  }
+
+  function formatDemeHTML(demeStr) {
+    const parts = demeStr.split('-');
+    return `
+      <div class="deme-box">
+        <span class="boat boat-${parts[0]}">${parts[0]}</span>
+        <span>-</span>
+        <span class="boat boat-${parts[1]}">${parts[1]}</span>
+        <span>-</span>
+        <span class="boat boat-${parts[2]}">${parts[2]}</span>
+      </div>
+    `;
+  }
+
+  function formatJpDate(dateObj) {
+    const y = dateObj.getFullYear();
+    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const d = String(dateObj.getDate()).padStart(2, '0');
+    return `${y}年${m}月${d}日`;
+  }
+
+  function parseLocalDate(dateStr) {
+    const parts = dateStr.trim().split(/[-/]/);
+    if (parts.length !== 3) return null;
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10) - 1;
+    const d = parseInt(parts[2], 10);
+    if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
+    return new Date(y, m, d);
+  }
+
+  function parseRawCSV(text) {
+    const cleanText = text.replace(/^\uFEFF/, '').trim();
+    const lines = cleanText.split(/\r?\n/);
+    if (lines.length < 2) return [];
+
+    const records = [];
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').trim());
+      if (cols.length < 6) continue;
+
+      const dateStr = cols[0];
+      const raceNo = parseInt(cols[1], 10) || 0;
+      const b1 = cols[2];
+      const b2 = cols[3];
+      const b3 = cols[4];
+      const payout = parseInt(cols[5], 10);
+
+      const dateObj = parseLocalDate(dateStr);
+      if (!dateObj || !b1 || !b2 || !b3 || isNaN(payout)) continue;
+
+      records.push({
+        year: String(dateObj.getFullYear()),
+        dateStr: `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`,
+        dateObj: dateObj,
+        raceNo: raceNo,
+        comb: `${b1}-${b2}-${b3}`,
+        payout: payout
+      });
+    }
+    return records;
+  }
+
+  function populateYearFilter(records) {
+    const yearSelect = document.getElementById('yearFilter');
+    const years = Array.from(new Set(records.map(r => r.year))).sort((a, b) => b.localeCompare(a));
+    yearSelect.innerHTML = '<option value="all">全期間</option>' +
+      years.map(y => `<option value="${y}">${y}年</option>`).join('');
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('rankingBody');
+    const headVal = document.getElementById('headFilter').value;
+    const yearVal = document.getElementById('yearFilter').value;
+
+    const targetRecords = allRawRecords.filter(r => yearVal === 'all' || r.year === yearVal);
+    const totalRaces = targetRecords.length;
+    const heldDaysCount = new Set(targetRecords.map(r => r.dateStr)).size;
+
+    document.getElementById('loadedFilesInfo').textContent =
+      `集計対象: ${heldDaysCount.toLocaleString()} 開催日（計 ${totalRaces.toLocaleString()} レース）`;
+
+    if (totalRaces === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="guide-msg">該当するデータがありません</td></tr>';
+      return;
+    }
+
+    const all120 = generateAll120Combinations();
+    const stats = {};
+    all120.forEach(comb => {
+      stats[comb] = { count: 0, totalPayout: 0, maxPayout: 0 };
+    });
+
+    targetRecords.forEach(rec => {
+      const st = stats[rec.comb];
+      if (st) {
+        st.count += 1;
+        st.totalPayout += rec.payout;
+        if (rec.payout > st.maxPayout) {
+          st.maxPayout = rec.payout;
+        }
+      }
+    });
+
+    // 出現率 × 平均配当（＝ 期待値）を算出
+    let rankingList = all120.map(comb => {
+      const st = stats[comb];
+      const hitRatio = st.count / totalRaces;
+      const avgPayout = st.count > 0 ? st.totalPayout / st.count : 0;
+      const expectedValue = hitRatio * avgPayout;
+
+      return {
+        comb: comb,
+        expectedValue: expectedValue,
+        hitRatePct: (hitRatio * 100).toFixed(2),
+        count: st.count,
+        avgPayout: Math.round(avgPayout),
+        maxPayout: st.maxPayout
+      };
+    });
+
+    if (headVal !== 'all') {
+      rankingList = rankingList.filter(item => item.comb.startsWith(headVal + '-'));
+    }
+
+    rankingList.sort((a, b) => {
+      if (b.expectedValue !== a.expectedValue) {
+        return b.expectedValue - a.expectedValue;
+      }
+      return b.count - a.count;
+    });
+
+    const displayList = showAll ? rankingList : rankingList.slice(0, 10);
+    document.getElementById('countInfo').textContent = `表示: ${displayList.length}件 / 全${rankingList.length}件`;
+
+    tbody.innerHTML = displayList.map((item, idx) => {
+      const rank = idx + 1;
+      const rankClass = rank <= 3 ? `rank-${rank}` : '';
+
+      const evText = `${item.expectedValue.toFixed(1)}円`;
+
+      const avgPayoutText = item.count > 0 ? `${item.avgPayout.toLocaleString()}円` : '-';
+      const maxPayoutSub = item.maxPayout > 0 ? `<span class="sub-info">最高: ${item.maxPayout.toLocaleString()}円</span>` : '';
+
+      return `
+        <tr>
+          <td><span class="rank-badge ${rankClass}">${rank}</span></td>
+          <td>${formatDemeHTML(item.comb)}</td>
+          <td class="score-cell">${evText}</td>
+          <td class="rate-cell">${item.hitRatePct}%<span class="sub-info">(${item.count.toLocaleString()}回)</span></td>
+          <td class="payout-cell">${avgPayoutText}${maxPayoutSub}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function processAndRender(validFiles) {
+    let combined = [];
+    validFiles.forEach(f => {
+      combined = combined.concat(f.records);
+    });
+
+    if (combined.length === 0) {
+      document.getElementById('latestDateBadge').textContent = '有効なレースデータなし';
+      return;
+    }
+
+    let minDateObj = combined[0].dateObj;
+    let maxDateObj = combined[0].dateObj;
+
+    combined.forEach(rec => {
+      if (rec.dateObj < minDateObj) minDateObj = rec.dateObj;
+      if (rec.dateObj > maxDateObj) maxDateObj = rec.dateObj;
+    });
+
+    document.getElementById('latestDateBadge').textContent =
+      `集計期間：${formatJpDate(minDateObj)}～${formatJpDate(maxDateObj)}`;
+
+    allRawRecords = combined;
+    populateYearFilter(allRawRecords);
+    renderTable();
+  }
+
+  async function handleLocalFiles(fileList) {
+    const allCsv = Array.from(fileList).filter(f => f.name.toLowerCase().endsWith('.csv'));
+    const matchedCsv = allCsv.filter(f => f.name.startsWith(FILE_PREFIX));
+    const targetFiles = matchedCsv.length > 0 ? matchedCsv : allCsv;
+
+    if (targetFiles.length === 0) {
+      alert('CSVファイルが見つかりませんでした。');
+      return;
+    }
+
+    const validFiles = [];
+    for (const file of targetFiles) {
+      const text = await file.text();
+      const records = parseRawCSV(text);
+      if (records.length > 0) {
+        validFiles.push({ filename: file.name, records: records });
+      }
+    }
+
+    if (validFiles.length > 0) {
+      processAndRender(validFiles);
+    } else {
+      alert('有効なレースデータが含まれるCSVが見つかりませんでした。');
+    }
+  }
+
+  async function initAutoFetch() {
+    if (window.location.protocol === 'file:') {
+      document.getElementById('localLoader').classList.add('visible');
+      document.getElementById('latestDateBadge').textContent = 'ローカル実行モード（フォルダを選択してください）';
+      document.getElementById('loadedFilesInfo').textContent = 'データ未読込';
+      document.getElementById('rankingBody').innerHTML = `
+        <tr>
+          <td colspan="5" class="guide-msg">
+            上の黄色い枠内の<strong>「📁 demetodadataフォルダを選択」</strong>ボタンを押すか、<br>
+            CSVファイルをこの画面にドラッグ＆ドロップしてください。
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    const years = [];
+    for (let y = START_YEAR; y <= END_YEAR; y++) {
+      years.push(y);
+    }
+
+    const cacheBuster = new Date().getTime();
+    const fetchPromises = years.map(async (year) => {
+      const filename = `${FILE_PREFIX}${year}.csv`;
+      const url = `${DATA_DIR}/${filename}?t=${cacheBuster}`;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const text = await res.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) return null;
+        return { year, filename, records: parseRawCSV(text) };
+      } catch (e) {
+        return null;
+      }
+    });
+
+    const results = await Promise.all(fetchPromises);
+    const validFiles = results.filter(r => r !== null && r.records.length > 0);
+
+    if (validFiles.length === 0) {
+      document.getElementById('localLoader').classList.add('visible');
+      document.getElementById('latestDateBadge').textContent = 'データ未検出';
+      document.getElementById('loadedFilesInfo').textContent = 'データ未読込';
+      document.getElementById('rankingBody').innerHTML = `
+        <tr>
+          <td colspan="5" class="guide-msg">
+            データが自動検出できませんでした。<br>
+            上のボタンからフォルダまたはCSVファイルを読み込んでください。
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    processAndRender(validFiles);
+  }
+
+  document.getElementById('folderInput').addEventListener('change', (e) => handleLocalFiles(e.target.files));
+  document.getElementById('fileInput').addEventListener('change', (e) => handleLocalFiles(e.target.files));
+
+  const container = document.getElementById('dropContainer');
+  container.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    container.classList.add('dragover');
+  });
+  container.addEventListener('dragleave', () => container.classList.remove('dragover'));
+  container.addEventListener('drop', (e) => {
+    e.preventDefault();
+    container.classList.remove('dragover');
+    if (e.dataTransfer.files.length > 0) {
+      handleLocalFiles(e.dataTransfer.files);
+    }
+  });
+
+  document.getElementById('headFilter').addEventListener('change', renderTable);
+  document.getElementById('yearFilter').addEventListener('change', renderTable);
+
+  document.getElementById('btnTop10').addEventListener('click', (e) => {
+    showAll = false;
+    e.target.classList.add('active');
+    document.getElementById('btnAll').classList.remove('active');
+    renderTable();
+  });
+
+  document.getElementById('btnAll').addEventListener('click', (e) => {
+    showAll = true;
+    e.target.classList.add('active');
+    document.getElementById('btnTop10').classList.remove('active');
+    renderTable();
+  });
+
+  initAutoFetch();
+</script>
+
+</body>
+</html>
