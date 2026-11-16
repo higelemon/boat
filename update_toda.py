@@ -2,6 +2,7 @@ import os
 import io
 import re
 import time
+import socket
 import ftplib
 import datetime
 import requests
@@ -11,10 +12,10 @@ import pandas as pd
 # ==============================================================================
 # 環境変数（GitHub Secretsから自動読み込み）
 # ==============================================================================
-FTP_HOST = os.environ["FC2_FTP_HOST"]      # 例: yourname.web.fc2.com
-FTP_USER = os.environ["FC2_FTP_USER"]      # 例: yourname
-FTP_PASS = os.environ["FC2_FTP_PASS"]      # FTPパスワード
-REMOTE_DIR = "demetodadata"                # FC2上の保存先フォルダ名
+FTP_HOST = os.environ["FC2_FTP_HOST"]
+FTP_USER = os.environ["FC2_FTP_USER"]
+FTP_PASS = os.environ["FC2_FTP_PASS"]
+REMOTE_DIR = "demetodadata"
 
 JCD = "02"  # ボートレース戸田の場コード
 JST = datetime.timezone(datetime.timedelta(hours=9))
@@ -22,6 +23,37 @@ today_jst = datetime.datetime.now(JST).date()
 target_year = today_jst.year
 csv_filename = f"demetodadata_{target_year}.csv"
 columns_order = ["日付", "レース番号", "1着", "2着", "3着", "配当"]
+
+# ==============================================================================
+# FC2対策用 カスタムFTPクラス
+# （PASV応答のIPアドレスではなく、必ず接続元のFTP_HOSTにデータ接続する）
+# ==============================================================================
+class FC2FTP(ftplib.FTP):
+    def makepasv(self):
+        _, port = super().makepasv()
+        return self.host, port
+
+class FC2FTPS(ftplib.FTP_TLS):
+    def makepasv(self):
+        _, port = super().makepasv()
+        return self.host, port
+
+def connect_fc2_ftp():
+    """FTPS（TLS）または通常のFTPでFC2に接続する"""
+    try:
+        ftp = FC2FTPS(FTP_HOST, timeout=30)
+        ftp.login(FTP_USER, FTP_PASS)
+        ftp.prot_p()
+        ftp.set_pasv(True)
+        print("FTPS（暗号化）でFC2に接続しました。")
+        return ftp
+    except Exception as e:
+        print(f"FTPS接続をスキップし通常FTPで接続します: {e}")
+        ftp = FC2FTP(FTP_HOST, timeout=30)
+        ftp.login(FTP_USER, FTP_PASS)
+        ftp.set_pasv(True)
+        print("通常FTPでFC2に接続しました。")
+        return ftp
 
 session = requests.Session()
 session.headers.update({
@@ -65,7 +97,6 @@ def get_held_dates_in_range(start_dt, end_dt):
         except Exception as e:
             print(f"スケジュール取得エラー ({ym}): {e}")
 
-        # 翌月へ
         if curr.month == 12:
             curr = datetime.date(curr.year + 1, 1, 1)
         else:
@@ -107,12 +138,9 @@ def parse_race_records(soup, target_date):
 def main():
     print(f"=== ボートレース戸田 自動差分更新開始 ({today_jst} JST) ===")
 
-    # 1. FC2サーバーにFTP接続して現在のCSVを取得
-    ftp = ftplib.FTP(FTP_HOST, timeout=30)
-    ftp.login(FTP_USER, FTP_PASS)
-    ftp.set_pasv(True)  # パッシブモード（GitHub Actionsからの接続に必須）
+    # 1. FC2サーバーに接続して現在のCSVを取得
+    ftp = connect_fc2_ftp()
 
-    # demetodadataフォルダへ移動（なければ作成）
     try:
         ftp.cwd(REMOTE_DIR)
     except ftplib.error_perm:
