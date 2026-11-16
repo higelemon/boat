@@ -1,11 +1,14 @@
-name: Update Boatrace Toda CSV to FC2
+name: Update Boatrace Toda CSV on GitHub Pages
 
 on:
   schedule:
     # 毎日 UTC 13:00 ＝ 日本時間（JST）毎日 22:00 に自動実行
     - cron: '0 13 * * *'
-  # GitHub画面から手動で「今すぐ実行」テストするための設定
+  # 手動で「今すぐ実行」テストするための設定
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   update-csv:
@@ -22,12 +25,20 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4 pandas
+          pip install requests beautifulsoup4
 
-      - name: Run update script and upload via FTP
-        env:
-          FC2_FTP_HOST: ${{ secrets.FC2_FTP_HOST }}
-          FC2_FTP_USER: ${{ secrets.FC2_FTP_USER }}
-          FC2_FTP_PASS: ${{ secrets.FC2_FTP_PASS }}
+      - name: Run update script
         run: |
           python update_toda.py
+
+      - name: Commit and push updated CSV
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add demetodadata/
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto update boatrace toda CSV ($(date +'%Y-%m-%d'))"
+            git push
+          else
+            echo "No changes to commit."
+          fi
