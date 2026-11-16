@@ -1,0 +1,33 @@
+name: Update Boatrace Toda CSV to FC2
+
+on:
+  schedule:
+    # 毎日 UTC 13:00 ＝ 日本時間（JST）毎日 22:00 に自動実行
+    - cron: '0 13 * * *'
+  # GitHub画面から手動で「今すぐ実行」テストするための設定
+  workflow_dispatch:
+
+jobs:
+  update-csv:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 pandas
+
+      - name: Run update script and upload via FTP
+        env:
+          FC2_FTP_HOST: ${{ secrets.FC2_FTP_HOST }}
+          FC2_FTP_USER: ${{ secrets.FC2_FTP_USER }}
+          FC2_FTP_PASS: ${{ secrets.FC2_FTP_PASS }}
+        run: |
+          python update_toda.py
