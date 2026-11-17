@@ -1,0 +1,2229 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#e6d6b8">
+<title>TODA SAGA - Romancing Boatrace -</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Cinzel:wght@700;900&family=Playfair+Display:ital,wght@0,800;1,900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rs-parchment-light: #f7efdc;
+    --rs-parchment-mid: #eadbc0;
+    --rs-parchment-dark: #d6c19a;
+    --rs-parchment-deep: #c4ab7e;
+    --rs-ink-dark: #26170a;
+    --rs-ink-mid: #4a3319;
+    --rs-ink-muted: #6e5233;
+    --rs-border-outer: #5c3a18;
+    --rs-border-gold: #b8860b;
+    --rs-crimson: #8b1e1e;
+    --rs-green: #166534;
+    --rs-navy: #1e3a5f;
+  }
+
+  * {
+    box-sizing: border-box;
+    image-rendering: pixelated;
+  }
+
+  body {
+    margin: 0;
+    background-color: #dfd0b2;
+    background-image:
+      radial-gradient(circle at 15% 15%, rgba(255, 250, 235, 0.7) 0%, transparent 45%),
+      radial-gradient(circle at 85% 20%, rgba(168, 128, 76, 0.25) 0%, transparent 50%),
+      radial-gradient(circle at 50% 85%, rgba(139, 90, 43, 0.22) 0%, transparent 55%),
+      repeating-linear-gradient(0deg, rgba(92, 58, 24, 0.03) 0px, rgba(92, 58, 24, 0.03) 1px, transparent 1px, transparent 4px),
+      repeating-linear-gradient(90deg, rgba(92, 58, 24, 0.025) 0px, rgba(92, 58, 24, 0.025) 1px, transparent 1px, transparent 5px),
+      linear-gradient(135deg, #efe4cc 0%, #e2cfb0 48%, #d2ba92 100%);
+    color: var(--rs-ink-dark);
+    font-family: 'DotGothic16', monospace;
+    letter-spacing: 0.03em;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .dq-window {
+    background:
+      radial-gradient(circle at 50% 30%, rgba(255, 252, 242, 0.85) 0%, rgba(238, 224, 194, 0.92) 70%, rgba(218, 198, 160, 0.96) 100%);
+    border: 3px solid var(--rs-border-outer);
+    border-radius: 10px;
+    box-shadow:
+      0 0 0 2px #d4af37,
+      inset 0 0 0 2px rgba(184, 134, 11, 0.35),
+      inset 0 0 24px rgba(139, 90, 43, 0.18),
+      0 10px 24px rgba(45, 26, 8, 0.32);
+    position: relative;
+    color: var(--rs-ink-dark);
+  }
+
+  .dq-window-title {
+    position: absolute;
+    top: -14px;
+    left: 16px;
+    background: linear-gradient(180deg, #5c2818 0%, #381409 100%);
+    border: 2px solid #d4af37;
+    border-radius: 6px;
+    padding: 1px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fef08a;
+    letter-spacing: 0.08em;
+    box-shadow: 0 2px 4px rgba(38, 23, 10, 0.5);
+    z-index: 20;
+    white-space: nowrap;
+  }
+
+  .dq-btn {
+    background: linear-gradient(180deg, #f9f2e2 0%, #dfc9a3 100%);
+    border: 2px solid #6b4423;
+    border-radius: 8px;
+    color: var(--rs-ink-dark);
+    padding: 9px 15px;
+    font-family: 'DotGothic16', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+    box-shadow: 0 3px 0 #4a2e14, inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .dq-btn:hover:not(:disabled) {
+    background: linear-gradient(180deg, #fffbeb 0%, #eed7a1 100%);
+    border-color: var(--rs-crimson);
+    color: var(--rs-crimson);
+  }
+
+  .dq-btn:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #4a2e14;
+  }
+
+  .dq-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .dq-btn-primary {
+    background: linear-gradient(180deg, #8b1e1e 0%, #520f0f 100%);
+    border-color: #d4af37;
+    color: #fef08a !important;
+    font-weight: bold;
+    box-shadow: 0 3px 0 #2b0909, inset 0 0 8px rgba(250, 204, 21, 0.3);
+  }
+
+  .dq-btn-primary:hover:not(:disabled) {
+    background: linear-gradient(180deg, #a62626 0%, #6b1414 100%);
+    border-color: #fde047;
+    color: #ffffff !important;
+  }
+
+  .dq-btn-verify {
+    background: linear-gradient(180deg, #1e3a8a 0%, #172554 100%);
+    border-color: #facc15;
+    color: #fef08a !important;
+    font-weight: bold;
+    box-shadow: 0 3px 0 #0f172a, inset 0 0 10px rgba(56, 189, 248, 0.35);
+  }
+
+  .dq-btn-verify:hover:not(:disabled) {
+    background: linear-gradient(180deg, #2563eb 0%, #1e3a8a 100%);
+    border-color: #ffffff;
+    color: #ffffff !important;
+  }
+
+  .dq-window .bg-slate-950\/95,
+  .dq-window .bg-slate-950\/90,
+  .dq-window .bg-slate-950\/70,
+  .dq-window .bg-slate-950,
+  .dq-window .bg-black\/95 {
+    background: linear-gradient(180deg, rgba(246, 236, 214, 0.96) 0%, rgba(232, 214, 180, 0.96) 100%) !important;
+    color: var(--rs-ink-dark) !important;
+  }
+
+  .dq-window .bg-slate-900\/95,
+  .dq-window .bg-slate-900\/90,
+  .dq-window .bg-slate-900\/80,
+  .dq-window .bg-slate-900 {
+    background-color: rgba(219, 198, 160, 0.72) !important;
+    color: var(--rs-ink-dark) !important;
+  }
+
+  .dq-window .bg-cyan-950\/75,
+  .dq-window .bg-cyan-950\/25 {
+    background-color: rgba(196, 173, 132, 0.45) !important;
+    color: var(--rs-ink-dark) !important;
+  }
+
+  .dq-window .text-white,
+  .dq-window .text-slate-100,
+  .dq-window .text-slate-200 {
+    color: #26170a !important;
+  }
+
+  .dq-window .text-slate-300,
+  .dq-window .text-slate-400,
+  .dq-window .text-slate-500 {
+    color: #5c4022 !important;
+  }
+
+  .dq-window .text-yellow-300,
+  .dq-window .text-amber-300,
+  .dq-window .text-amber-200,
+  .dq-window .text-orange-300 {
+    color: #8b2609 !important;
+  }
+
+  .dq-window .text-cyan-300,
+  .dq-window .text-cyan-200,
+  .dq-window .text-sky-300,
+  .dq-window .text-indigo-300 {
+    color: #17426b !important;
+  }
+
+  .dq-window .border-slate-800,
+  .dq-window .border-slate-700,
+  .dq-window .border-slate-600,
+  .dq-window .border-slate-500 {
+    border-color: #b59668 !important;
+  }
+
+  @keyframes blinkCursor {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+  .cursor-blink {
+    display: inline-block;
+    animation: blinkCursor 0.85s infinite;
+  }
+
+  @keyframes gekiPulse {
+    0%, 100% { box-shadow: 0 0 0 2px #dc2626, 0 0 12px rgba(220, 38, 38, 0.45); }
+    50% { box-shadow: 0 0 0 2px #facc15, 0 0 18px rgba(234, 179, 8, 0.75); }
+  }
+  .geki-card {
+    background: linear-gradient(135deg, #fff1f2 0%, #fef3c7 50%, #ffedd5 100%);
+    border: 2px solid #991b1b;
+    animation: gekiPulse 1.6s infinite;
+  }
+
+  /* 2コマ待機アニメーション */
+  @keyframes dqWalkFrame1 {
+    0%, 49.9% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+  @keyframes dqWalkFrame2 {
+    0%, 49.9% { opacity: 0; }
+    50%, 100% { opacity: 1; }
+  }
+  @keyframes dqSpriteBob {
+    0%, 49.9% { transform: translateY(0px); }
+    50%, 100% { transform: translateY(-1.5px); }
+  }
+  .dq-sprite-anim {
+    animation: dqSpriteBob 0.65s steps(1, end) infinite;
+  }
+  .dq-sprite-anim .dq-frame-1 {
+    animation: dqWalkFrame1 0.65s steps(1, end) infinite;
+  }
+  .dq-sprite-anim .dq-frame-2 {
+    animation: dqWalkFrame2 0.65s steps(1, end) infinite;
+  }
+
+  .boat-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    border: 2px solid #3d2510;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
+    flex-shrink: 0;
+  }
+  .boat-1 { background: #f8fafc !important; color: #0f172a !important; }
+  .boat-2 { background: #1e293b !important; color: #ffffff !important; }
+  .boat-3 { background: #dc2626 !important; color: #ffffff !important; }
+  .boat-4 { background: #2563eb !important; color: #ffffff !important; }
+  .boat-5 { background: #ffe600 !important; color: #0f172a !important; }
+  .boat-6 { background: #16a34a !important; color: #ffffff !important; }
+
+  .mark-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-weight: 900;
+    font-size: 16px;
+    border: 2px solid #3d2510;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+  }
+  .mark-honmei { background: #dc2626; color: #fef08a; }
+  .mark-taikou { background: #1d4ed8; color: #ffffff; }
+  .mark-tanana { background: #15803d; color: #ffffff; }
+  .mark-renka  { background: #d97706; color: #ffffff; }
+  .mark-none   { background: #e5d5b7; color: #6e5233; font-size: 12px; }
+
+  .dq-input {
+    background: #fcf6e8;
+    border: 2px solid #8b6539;
+    border-radius: 6px;
+    color: #26170a;
+    padding: 8px 12px;
+    font-family: 'DotGothic16', monospace;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .dq-input:focus {
+    outline: none;
+    border-color: var(--rs-crimson);
+    background: #ffffff;
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: #dfd0b2; }
+  ::-webkit-scrollbar-thumb { background: #9c7a4c; border-radius: 4px; border: 1px solid #5c3a18; }
+</style>
+</head>
+<body class="p-2 sm:p-4 md:p-6">
+
+  <div id="appShell" class="max-w-6xl mx-auto space-y-3 sm:space-y-5">
+
+    <!-- HEADER -->
+    <header class="dq-window p-2.5 sm:p-4 flex flex-row items-center justify-between gap-2 sm:gap-4">
+      <div class="w-auto flex items-center justify-start min-w-0 flex-1">
+        <svg viewBox="0 0 640 132" class="w-full max-w-[275px] sm:max-w-[510px] h-auto select-none overflow-visible drop-shadow-[0_4px_7px_rgba(30,15,5,0.45)]" role="img" aria-label="TODA Sa・Ga - Romancing Boatrace -">
+          <defs>
+            <linearGradient id="rs1WhiteSilver" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="48%" stop-color="#f8fafc"/>
+              <stop offset="78%" stop-color="#cbd5e1"/>
+              <stop offset="100%" stop-color="#94a3b8"/>
+            </linearGradient>
+            <linearGradient id="rs1CrimsonRed" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ff5a5a"/>
+              <stop offset="28%" stop-color="#ef2323"/>
+              <stop offset="68%" stop-color="#b91c1c"/>
+              <stop offset="100%" stop-color="#580808"/>
+            </linearGradient>
+            <linearGradient id="sagaGoldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#b45309"/>
+              <stop offset="50%" stop-color="#fef08a"/>
+              <stop offset="100%" stop-color="#b45309"/>
+            </linearGradient>
+          </defs>
+
+          <path d="M 30,72 Q 160,40 320,66 Q 480,92 610,56" fill="none" stroke="url(#sagaGoldGrad)" stroke-width="2" opacity="0.75"/>
+          <line x1="20" y1="98" x2="620" y2="98" stroke="#78350f" stroke-width="2.5" opacity="0.65"/>
+          <line x1="55" y1="102" x2="585" y2="102" stroke="url(#sagaGoldGrad)" stroke-width="1.5" opacity="0.9"/>
+
+          <text x="48" y="25" font-family="'DotGothic16', monospace" font-weight="bold" font-size="14" fill="#7f1d1d" letter-spacing="5">
+            ロマンシング ボートレース 戸田
+          </text>
+
+          <g transform="translate(44, 90) scale(0.92, 1.15)">
+            <text x="3" y="4" font-family="'Cinzel', 'Playfair Display', Georgia, serif" font-weight="900" font-size="60" fill="#1a0b05" letter-spacing="4">
+              TODA
+            </text>
+            <text x="0" y="0" font-family="'Cinzel', 'Playfair Display', Georgia, serif" font-weight="900" font-size="60" fill="url(#rs1WhiteSilver)" stroke="#1a0b05" stroke-width="7" paint-order="stroke" letter-spacing="4">
+              TODA
+            </text>
+            <text x="0" y="0" font-family="'Cinzel', 'Playfair Display', Georgia, serif" font-weight="900" font-size="60" fill="url(#rs1WhiteSilver)" stroke="#ffffff" stroke-width="0.8" letter-spacing="4">
+              TODA
+            </text>
+          </g>
+
+          <g transform="translate(278, 92) skewX(-10) scale(1.02, 1.12)">
+            <text x="4" y="5" font-family="'Playfair Display', 'Cinzel', Georgia, serif" font-style="italic" font-weight="900" font-size="68" fill="#1a0505" letter-spacing="2">
+              Sa
+            </text>
+            <text x="150" y="5" font-family="'Playfair Display', 'Cinzel', Georgia, serif" font-style="italic" font-weight="900" font-size="68" fill="#1a0505" letter-spacing="2">
+              Ga
+            </text>
+
+            <text x="0" y="0" font-family="'Playfair Display', 'Cinzel', Georgia, serif" font-style="italic" font-weight="900" font-size="68" fill="url(#rs1CrimsonRed)" stroke="#1a0505" stroke-width="9" paint-order="stroke" letter-spacing="2">
+              Sa
+            </text>
+            <text x="0" y="0" font-family="'Playfair Display', 'Cinzel', Georgia, serif" font-style="italic" font-weight="900" font-size="68" fill="url(#rs1CrimsonRed)" stroke="#fef2f2" stroke-width="2.2" paint-order="stroke" letter-spacing="2">
+              Sa
+            </text>
+
+            <polygon points="122,-28 131,-37 140,-28 131,-19" fill="#1a0505" transform="translate(3,3)"/>
+            <polygon points="122,-28 131,-37 140,-28 131,-19" fill="url(#rs1CrimsonRed)" stroke="#fef2f2" stroke-width="2"/>
+
+            <text x="146" y="0" font-family="'Playfair Display', 'Cinzel', Georgia, serif" font-style="italic" font-weight="900" font-size="68" fill="url(#rs1CrimsonRed)" stroke="#1a0505" stroke-width="9" paint-order="stroke" letter-spacing="2">
+              Ga
+            </text>
+            <text x="146" y="0" font-family="'Playfair Display', 'Cinzel', Georgia, serif" font-style="italic" font-weight="900" font-size="68" fill="url(#rs1CrimsonRed)" stroke="#fef2f2" stroke-width="2.2" paint-order="stroke" letter-spacing="2">
+              Ga
+            </text>
+          </g>
+
+          <text x="320" y="122" text-anchor="middle" font-family="'Cinzel', 'DotGothic16', serif" font-weight="bold" font-size="12" fill="#451a03" letter-spacing="5">
+            — TALES OF CELESTIAL BOATRACE TODA —
+          </text>
+        </svg>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
+        <button id="soundToggleBtn" class="dq-btn text-[11px] sm:text-sm py-1.5 px-2.5 sm:py-2 sm:px-3" title="8bitサウンド切替">
+          🔊 SE: ON
+        </button>
+      </div>
+    </header>
+
+    <!-- ================================================================ -->
+    <!-- 第1画面：出走データ取得・確認                                      -->
+    <!-- ================================================================ -->
+    <section id="phase1" class="phase-panel space-y-5">
+      <div class="dq-window p-4 sm:p-6 pt-7">
+        <div class="dq-window-title">運命の章（データ取得）</div>
+
+        <div class="space-y-4">
+          <p class="text-xs sm:text-base text-slate-200 leading-relaxed">
+            開催日とレース番号を選択し、「公式データ取得」ボタンを押すとボートレース戸田の公式XMLおよび直前情報・オリジナル展示タイム（一周・まわり足・直線）を読み込みます。
+          </p>
+
+          <div class="p-3.5 sm:p-4 rounded-lg border-2 border-amber-500/50 bg-slate-950/90 space-y-3">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <input type="date" id="dateInput" class="dq-input">
+              <select id="raceSelect" class="dq-input" aria-label="レース番号"></select>
+              <button id="fetchOfficialBtn" type="button" class="dq-btn dq-btn-primary">
+                <span class="cursor-blink">▶</span> 公式データ取得
+              </button>
+              <button id="loadDemoBtn" type="button" class="dq-btn text-xs sm:text-sm border-cyan-400 text-cyan-300">
+                ⚡ デモ出走データ読込
+              </button>
+              <button id="goVerifyBtnTop" type="button" class="dq-btn dq-btn-verify hidden">
+                ▶ 過去データで検証
+              </button>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400 pt-2 border-t border-slate-800">
+              <span id="weatherBadge" class="px-2.5 py-1 rounded border border-slate-600 bg-slate-900 text-cyan-300">
+                気象: 晴 · 北 (3m/s)
+              </span>
+              <span id="fetchStatusMsg" class="text-amber-300 font-bold"></span>
+            </div>
+          </div>
+        </div>
+
+        <div id="rosterPreviewSection" class="mt-6 space-y-4 hidden">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-base font-bold text-yellow-300">▼ 出走メンバー</h3>
+            </div>
+            <span id="raceTitleDisplay" class="text-xs sm:text-sm text-cyan-300 font-bold"></span>
+          </div>
+
+          <div class="overflow-x-auto rounded-lg border-2 border-amber-500/60 shadow-lg">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr class="bg-slate-900 text-yellow-300 border-b border-slate-700 text-[11px] sm:text-xs">
+                  <th rowspan="2" class="p-2 text-center border-r border-slate-700 w-11">枠</th>
+                  <th rowspan="2" class="p-2.5 border-r border-slate-700 min-w-[175px]">選手名 / クラス（職業）</th>
+                  <th rowspan="2" class="p-2 text-center border-r border-slate-700 w-12">性別</th>
+                  <th rowspan="2" class="p-2 text-center border-r border-slate-700 w-12">級別</th>
+                  <th class="p-2 text-right bg-slate-900/95">全国勝率</th>
+                  <th class="p-2 text-right bg-slate-900/95">当地勝率</th>
+                  <th class="p-2 text-right bg-slate-900/95">モーター2連</th>
+                  <th class="p-2 text-right bg-slate-900/95">平均ST</th>
+                  <th class="p-2 text-right bg-slate-900/95">チルト</th>
+                </tr>
+                <tr class="bg-cyan-950/75 text-cyan-200 border-b-2 border-slate-500 text-[11px] sm:text-xs">
+                  <th class="p-2 text-right border-t border-slate-700">展示T / ST</th>
+                  <th class="p-2 text-right border-t border-slate-700">一周T</th>
+                  <th class="p-2 text-right border-t border-slate-700">まわり足T</th>
+                  <th colspan="2" class="p-2 text-right border-t border-slate-700">直線T</th>
+                </tr>
+              </thead>
+              <tbody id="phase1TableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- 下部アクション：過去データで検証ボタン -->
+          <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button id="goVerifyBtnBottom" type="button" class="dq-btn dq-btn-verify w-full sm:w-auto text-base py-3 px-8">
+              <span class="cursor-blink">▶</span> 過去データで検証
+            </button>
+          </div>
+        </div>
+
+        <div id="noDataNotice" class="mt-6 p-6 rounded-lg border-2 border-dashed border-slate-600 bg-slate-950/70 text-center space-y-1.5">
+          <div class="text-yellow-300 font-bold text-sm sm:text-base">＊ 出走データがまだ読み込まれていません ＊</div>
+          <div class="text-xs sm:text-sm text-slate-400">上の「▶ 公式データ取得」または「⚡ デモ出走データ読込」ボタンを押すと出走メンバーが表示されます。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- 第2画面：過去データ検証・選手評価・着順確率・ゲキ熱選手            -->
+    <!-- ================================================================ -->
+    <section id="phase2" class="phase-panel space-y-5 hidden">
+      <div class="dq-window p-4 sm:p-6 pt-7 space-y-5">
+        <div class="dq-window-title">検証の章（戦局・過去気象近似解析）</div>
+
+        <!-- 上部ナビゲーション＆レース情報 -->
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b-2 border-amber-700/40">
+          <button id="backToPhase1Btn" type="button" class="dq-btn text-xs sm:text-sm py-1.5 px-3">
+            ◀ データ取得へ戻る
+          </button>
+          <div class="text-right">
+            <div id="verifyRaceHeader" class="text-sm sm:text-base font-bold text-yellow-300"></div>
+            <div id="verifyWeatherHeader" class="text-xs text-cyan-300 font-bold"></div>
+          </div>
+        </div>
+
+        <!-- 過去CSV読込ステータス / ローカル手動選択バー -->
+        <div id="historyStatusBox" class="p-3 rounded-lg border border-amber-600/60 bg-slate-950/90 text-xs space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span id="historyLoadStatus" class="font-bold text-cyan-300">⏳ demetodadata/raceresult_年.csv を検索中...</span>
+            <span id="similarMatchSummary" class="font-bold text-yellow-300"></span>
+          </div>
+          <div id="localCsvPicker" class="hidden pt-2 border-t border-slate-700 flex flex-wrap items-center gap-2">
+            <span class="text-amber-300 font-bold">※ローカル直接実行のため自動読込できない場合はフォルダを選択してください：</span>
+            <label class="dq-btn text-xs py-1 px-2.5 cursor-pointer">
+              📁 demetodadataフォルダを選択
+              <input type="file" id="verifyFolderInput" webkitdirectory directory multiple style="display:none;">
+            </label>
+          </div>
+        </div>
+
+        <!-- 🔥 ゲキ熱選手ピックアップエリア -->
+        <div class="space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-base sm:text-lg font-bold text-yellow-300">
+              🔥 ゲキ熱選手（気象・コース・ST近似過去データ評価）
+            </h3>
+            <span class="text-[11px] sm:text-xs text-slate-400">※近似条件で好走率・上振れ値が際立つ選手を自動抽出</span>
+          </div>
+          <div id="gekiAtsuContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- JSで動的生成 -->
+          </div>
+        </div>
+
+        <!-- 📊 全6艇 総合評価・印・1着/2着/3着確率テーブル -->
+        <div class="space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-base sm:text-lg font-bold text-yellow-300">
+              ▼ 選手評価・予想印・着順確率
+            </h3>
+            <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+              <span class="px-1.5 py-0.5 rounded bg-red-700 text-yellow-200 font-bold">◎本命</span>
+              <span class="px-1.5 py-0.5 rounded bg-blue-700 text-white font-bold">〇対抗</span>
+              <span class="px-1.5 py-0.5 rounded bg-green-700 text-white font-bold">▲単穴</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-600 text-white font-bold">△連下</span>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto rounded-lg border-2 border-amber-500/60 shadow-lg">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr class="bg-slate-900 text-yellow-300 border-b-2 border-slate-600 text-[11px] sm:text-xs">
+                  <th class="p-2 text-center w-11">枠</th>
+                  <th class="p-2 text-center w-12">印</th>
+                  <th class="p-2 min-w-[155px]">選手名 / 職業</th>
+                  <th class="p-2 text-right">1着確率</th>
+                  <th class="p-2 text-right">2着確率</th>
+                  <th class="p-2 text-right">3着確率</th>
+                  <th class="p-2 text-right">3連対率</th>
+                  <th class="p-2 text-right">近似過去実績</th>
+                </tr>
+              </thead>
+              <tbody id="evalTableBody">
+                <!-- JSで動的生成 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 📜 近似条件に一致した過去の類似レースサンプル一覧 -->
+        <div class="space-y-2">
+          <h3 class="text-sm sm:text-base font-bold text-cyan-300">
+            ▼ 気象・STが近似した過去レース事例（直近サンプル）
+          </h3>
+          <div id="similarRacesList" class="overflow-x-auto rounded-lg border border-slate-600 bg-slate-950/90">
+            <!-- JSで動的生成 -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+<script>
+// ============================================================================
+// 1. 8bit Sound Engine (Web Audio API)
+// ============================================================================
+var SoundFX = (function() {
+  var ctx = null;
+  var enabled = true;
+
+  function ensureCtx() {
+    if (!enabled) return null;
+    if (!ctx) {
+      var AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) ctx = new AudioCtx();
+    }
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+
+  function playTone(freq, duration, type, delay, vol) {
+    duration = duration || 0.08;
+    type = type || 'square';
+    delay = delay || 0;
+    vol = vol || 0.06;
+    try {
+      var ac = ensureCtx();
+      if (!ac) return;
+      var now = ac.currentTime + delay;
+      var osc = ac.createOscillator();
+      var gain = ac.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(vol, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.start(now);
+      osc.stop(now + duration);
+    } catch (e) {}
+  }
+
+  return {
+    toggle: function() {
+      enabled = !enabled;
+      return enabled;
+    },
+    isEnabled: function() { return enabled; },
+    cursor: function() { playTone(880, 0.05, 'square', 0, 0.04); },
+    confirm: function() { playTone(587.33, 0.06, 'square', 0, 0.05); playTone(880, 0.12, 'square', 0.06, 0.05); },
+    spark: function() {
+      playTone(1046.50, 0.05, 'square', 0.00, 0.08);
+      playTone(1318.51, 0.05, 'square', 0.04, 0.08);
+      playTone(1567.98, 0.06, 'square', 0.08, 0.08);
+      playTone(2093.00, 0.24, 'triangle', 0.13, 0.10);
+      playTone(2637.02, 0.28, 'sine', 0.16, 0.07);
+    }
+  };
+})();
+
+// ============================================================================
+// 2. Gender Detection & 21 Romancing SaGa Classes + Sprites
+// ============================================================================
+function detectRacerGender(name, rawSex) {
+  rawSex = String(rawSex || '').trim();
+  if (rawSex === '2' || rawSex === '女' || rawSex === '女性' || /^F/i.test(rawSex)) return 'F';
+  if (rawSex === '1' || rawSex === '男' || rawSex === '男性' || /^M/i.test(rawSex)) return 'M';
+  var clean = String(name || '').replace(/[\s ]+/g, '');
+  var parts = String(name || '').trim().split(/[\s ]+/);
+  var given = parts[1] || clean.slice(-2);
+  var femaleExact = ['守屋美穂', '遠藤エミ', '平高奈菜', '大山千広', '浜田亜理沙', '田口節子', '長嶋万記', '細川裕子', '寺田千恵', '日高逸子', '三浦永理', '渡邉優美', '高田ひかる', '西橋奈未', '清埜翔子', '中田夕貴', '平山智加', '香川素子', '鎌倉涼', '宇野弥生', '落合直子', '實森美祐', '川井萌', '土屋南', '大瀧明日香'];
+  if (femaleExact.indexOf(clean) !== -1) return 'F';
+  if (/子$|美$|香$|奈$|菜$|花$|華$|恵$|絵$|江$|枝$|乃$|音$|愛$|舞$|衣$|里$|梨$|理$|彩$|沙$|紗$|織$|希$|姫$|凛$|桜$|楓$|葵$|茜$|杏$|実$|帆$|穂$|ミホ|リカ|ユカ|マキ|サヤ|カナ|ナナ|モモ|アイ|レイ|メイ/.test(given)) {
+    if (!/(樹|輔|介|太|郎|男|夫|雄|彦|宏|広|博|勝|正|光|幸|明|司|史|志|士|人|斗|翔|大|貴|也|浩|竜|翼|哲|之)/.test(given)) {
+      return 'F';
+    }
+  }
+  return 'M';
+}
+
+var PIXEL_PALETTE = {
+  '.': null,
+  'K': '#18100c',
+  'S': '#fbd3a4',
+  's': '#e2a36e',
+  'W': '#f8fafc',
+  'G': '#facc15',
+  'g': '#b45309',
+  'R': '#dc2626',
+  'r': '#7f1d1d',
+  'B': '#2563eb',
+  'b': '#1e3a8a',
+  'C': '#38bdf8',
+  'E': '#16a34a',
+  'e': '#14532d',
+  'P': '#9333ea',
+  'p': '#4c1d95',
+  'Y': '#fde047',
+  'H': '#854d0e',
+  'h': '#451a03',
+  'A': '#cbd5e1',
+  'a': '#64748b',
+  'M': '#ec4899',
+  'm': '#9d174d'
+};
+
+var JOB_SPRITE_BASES = {
+  'atk_M': [
+    '......KKKK......',
+    '....KKWWWWKK....',
+    '...KWWYYYYWWK...',
+    '..KKGGGGGGGGKK..',
+    '.KGGYYYYYYYYGGK.',
+    '.KGYSSKSSKYYYYK.',
+    '.KGYSKSSSSYYYYK.',
+    '..KSSSSSSSSYYKK.',
+    '..KssSSSSSSsKK..',
+    '...KKKKKKKKKK...',
+    '..KKRRRRRRRRKK..',
+    '.KGGKAAAAAARKGGK',
+    'KAAKAAAGGGAAKAAK',
+    'KSSKAAAAAAAARKSS',
+    '.KKKggggggggKKKK',
+    '...KRRRRRRRRK...',
+    '...KAAKKKKAAK...',
+    '..KAAK....KAAK..',
+    '..KggK....KggK..',
+    '..KKKK....KKKK..'
+  ],
+  'atk_F': [
+    '....KKKKKKKK....',
+    '..KKYYYYYYYYKK..',
+    '.KYYGGGGGGGGYYK.',
+    '.KYGYYYYYYYYYYK.',
+    '.KYYSSKSSKYYYYYK',
+    '.KYYSKSSSSYYYYYK',
+    '..KSSSSSSSSYYYYK',
+    '..KssSSSSSSYYKK.',
+    '...KKKKKKKKYYYK.',
+    '..KKWWWWWWWWYYK.',
+    '.KGGKRRRRRRKGGK.',
+    'KSSKRGGGGGRKSSK.',
+    'KSSKWWWWWWWWKSSK',
+    '.KKKGGGGGGGGKKK.',
+    '...KRRRRRRRRK...',
+    '...KWWKKKKWWK...',
+    '..KSSK....KSSK..',
+    '..KRRK....KRRK..',
+    '..KKKK....KKKK..',
+    '................'
+  ],
+  'spd_M': [
+    '....KKKKKKKK....',
+    '..KKHHHHHHHHKK..',
+    '.KHHKKKKKKKKHHK.',
+    '.KRRRRRRRRRRRRKR',
+    '.KHHSSKSSKHHHHKR',
+    '.KHHSKSSSSHHHHK.',
+    '..KSSSSSSSSHHKK.',
+    '..KssSSSSSSsKK..',
+    '...KKKKKKKKKK...',
+    '..KKBBBBBBBBKK..',
+    '.KSSKBBBBBBKSSK.',
+    'KSSKBBWWWWBBKSSK',
+    'KssKBBBBBBBBKssK',
+    '.KKKRRRRRRRRKKK.',
+    '...KBBBBBBBBK...',
+    '...KBBKKKKBBK...',
+    '..KWWK....KWWK..',
+    '..KhhK....KhhK..',
+    '..KKKK....KKKK..',
+    '................'
+  ],
+  'spd_F': [
+    '..KKK.KKKK.KKK..',
+    '.KRRRKHHHHKRRRK.',
+    '.KHHGGGGGGGGHHK.',
+    '.KHHHHHHHHHHHHK.',
+    '.KHHSSKSSKHHHHK.',
+    '.KHHSKSSSSHHHHK.',
+    '..KSSSSSSSSHHKK.',
+    '..KssSSSSSSsKK..',
+    '...KKKKKKKKKK...',
+    '..KKRRRRRRRRKK..',
+    '.KSSKRGGGGGRKSSK',
+    'KSSKRRRRRRRRKSSK',
+    'KssKGGGGGGGGKssK',
+    '.KKKWWWWWWWWKKK.',
+    '...KRRRRRRRRK...',
+    '...KSSKKKKSSK...',
+    '..KSSK....KSSK..',
+    '..KRRK....KRRK..',
+    '..KKKK....KKKK..',
+    '................'
+  ],
+  'dex_M': [
+    '....KKKKKKKK....',
+    '...KEEEEEEEEK...',
+    '..KEEEEEEEEEEE..',
+    '.KGGGGGGGGGGGGK.',
+    '.KHHSSKSSKHHHHK.',
+    '.KHHSKSSSSHHHHK.',
+    '..KSSSSSSSSHHKK.',
+    '..KssSSSSSSsKK..',
+    '...KKKKKKKKKK...',
+    '..KKEEEEEEEEKK..',
+    '.KggKeGGGGGeKggK',
+    'KSSKeeeeeeeeKSSK',
+    'KssKhhhhhhhhKssK',
+    '.KKKggggggggKKK.',
+    '...KeeeeeeeeK...',
+    '...KhhKKKKhhK...',
+    '..KhhK....KhhK..',
+    '..KggK....KggK..',
+    '..KKKK....KKKK..',
+    '................'
+  ],
+  'dex_F': [
+    '....KKKKKKKK....',
+    '..KKHHHHHHHHKK..',
+    '.KHHGGGGGGGGHHK.',
+    '.KHHHHHHHHHHHHHK',
+    '.KHHSSKSSKHHHHHK',
+    '.KHHSKSSSSHHHHHK',
+    '..KSSSSSSSSHHHHK',
+    '..KssSSSSSSHHKK.',
+    '...KKKKKKKKHHHK.',
+    '..KKEEEEEEEEHHK.',
+    '.KSSKEGWWGEKSSK.',
+    'KSSKEEEEEEEEKSSK',
+    'KssKGGGGGGGGKssK',
+    '.KKKWWWWWWWWKKK.',
+    '...KEEEEEEEEK...',
+    '...KSSKKKKSSK...',
+    '..KSSK....KSSK..',
+    '..KhhK....KhhK..',
+    '..KKKK....KKKK..',
+    '................'
+  ],
+  'int_M': [
+    '......KKKK......',
+    '....KKPPPPKK....',
+    '..KKPPPPPPPPKK..',
+    '.KGGGGGGGGGGGGK.',
+    '.KYYSSKSSKYYYYK.',
+    '.KYYSKSSSSYYYYK.',
+    '..KSSSSSSSSYYKK.',
+    '..KssSSSSSSsKK..',
+    '...KKKKKKKKKK...',
+    '..KKBBBBBBBBKK..',
+    '.KPPKBGGGGGBKPPK',
+    'KSSKBBBBBBBBKSSK',
+    'KssKPPPPPPPPKssK',
+    '.KKKGGGGGGGGKKK.',
+    '...KBBBBBBBBK...',
+    '...KbbKKKKbbK...',
+    '..KbbK....KbbK..',
+    '..KhhK....KhhK..',
+    '..KKKK....KKKK..',
+    '................'
+  ],
+  'int_F': [
+    '....KKKKKKKK....',
+    '..KKPPPPPPPPKK..',
+    '.KPPGGGGGGGGPPK.',
+    '.KPPYYYYYYYYPPK.',
+    '.KYYSSKSSKYYYYYK',
+    '.KYYSKSSSSYYYYYK',
+    '..KSSSSSSSSYYYYK',
+    '..KssSSSSSSYYKK.',
+    '...KKKKKKKKYYYK.',
+    '..KKPPPPPPPPYYK.',
+    '.KWWKPGGGGPKWWK.',
+    'KSSKPPPPPPPPKSSK',
+    'KssKWWWWWWWWKssK',
+    '.KKKGGGGGGGGKKK.',
+    '...KPPPPPPPPK...',
+    '...KWWKKKKWWK...',
+    '..KWWK....KWWK..',
+    '..KbbK....KbbK..',
+    '..KKKK....KKKK..',
+    '................'
+  ],
+  'luk_M': [
+    '....KKKKKKKK....',
+    '..KKMMMMMMMMKK..',
+    '.KMMMMMMMMMMMMK.',
+    '.KGGGGGGGGGGGGK.',
+    '.KYYSSKSSKYYYYK.',
+    '.KYYSKSSSSYYYYK.',
+    '..KSSSSSSSSYYKK.',
+    '..KssSSSSSSsKK..',
+    '...KKKKKKKKKK...',
+    '..KKMMMMMMMMKK..',
+    '.KWWKMGGGGGMKWWK',
+    'KSSKMMMMMMMMKSSK',
+    'KssKWWWWWWWWKssK',
+    '.KKKGGGGGGGGKKK.',
+    '...KMMMMMMMMK...',
+    '...KWWKKKKWWK...',
+    '..KWWK....KWWK..',
+    '..KhhK....KhhK..',
+    '..KKKK....KKKK..',
+    '................'
+  ],
+  'luk_F': [
+    '..KKK.KKKK.KKK..',
+    '.KMMMKGGGGKMMMK.',
+    '.KMMGGGGGGGGMMK.',
+    '.KMMMMMMMMMMMMK.',
+    '.KMMSSKSSKMMMMMK',
+    '.KMMSKSSSSMMMMMK',
+    '..KSSSSSSSSMMMMK',
+    '..KssSSSSSSMMKK.',
+    '...KKKKKKKKMMMK.',
+    '..KKmmmmmmmmMMK.',
+    '.KSSKmGGGGmKSSK.',
+    'KSSKmmmmmmmmKSSK',
+    'KssKGGGGGGGGKssK',
+    '.KKKWWWWWWWWKKK.',
+    '...KmmmmmmmmK...',
+    '...KSSKKKKSSK...',
+    '..KSSK....KSSK..',
+    '..KmmK....KmmK..',
+    '..KKKK....KKKK..',
+    '................'
+  ]
+};
+
+var SAGA_CLASSES = {
+  B: [
+    { id: 'b_warrior',     name: '戦士',     statKey: 'str', spriteType: 'atk' },
+    { id: 'b_paladin',     name: '聖戦士',   statKey: 'vit', spriteType: 'atk' },
+    { id: 'b_monk',        name: '武闘家',   statKey: 'agi', spriteType: 'spd' },
+    { id: 'b_spellblade',  name: '魔戦士',   statKey: 'mag', spriteType: 'int' },
+    { id: 'b_cleric',      name: '僧侶',     statKey: 'lov', spriteType: 'int' },
+    { id: 'b_thief',       name: 'シーフ',   statKey: 'agi', spriteType: 'dex' },
+    { id: 'b_mage',        name: '魔術士',   statKey: 'int', spriteType: 'int' },
+    { id: 'b_Jager',       name: '狩人',     statKey: 'dex', spriteType: 'dex' },
+    { id: 'b_diviner',     name: '占い師',   statKey: 'cha', spriteType: 'luk' }
+  ],
+  A2: [
+    { id: 'a2_pirate',     name: '海賊',         statKey: 'str', spriteType: 'atk' },
+    { id: 'a2_citythief',  name: 'シティシーフ', statKey: 'agi', spriteType: 'spd' },
+    { id: 'a2_smith',      name: '鍛冶屋',       statKey: 'vit', spriteType: 'atk' },
+    { id: 'a2_pioneer',    name: '開拓者',       statKey: 'wil', spriteType: 'dex' },
+    { id: 'a2_swordsman',  name: '剣士',         statKey: 'dex', spriteType: 'atk' },
+    { id: 'a2_artisan',    name: '細工師',       statKey: 'int', spriteType: 'luk' }
+  ],
+  A1: [
+    { id: 'a1_marine',     name: '帝国海兵',   statKey: 'str', spriteType: 'atk' },
+    { id: 'a1_hunter',     name: 'ハンター',   statKey: 'dex', spriteType: 'dex' },
+    { id: 'a1_wizard',     name: 'ウィザード', statKey: 'mag', spriteType: 'int' },
+    { id: 'a1_redmage',    name: '赤魔道士',   statKey: 'int', spriteType: 'int' },
+    { id: 'a1_assassin',   name: 'アサシン',   statKey: 'agi', spriteType: 'spd' },
+    { id: 'a1_dragoon',    name: '竜人',       statKey: 'vit', spriteType: 'atk' }
+  ]
+};
+
+function determineSagaClass(stats, kyu, teiban) {
+  var tier = kyu === 'A1' ? 'A1' : (kyu === 'A2' ? 'A2' : 'B');
+  var pool = SAGA_CLASSES[tier];
+
+  var bestClass = pool[0];
+  var bestScore = -9999;
+
+  for (var i = 0; i < pool.length; i++) {
+    var c = pool[i];
+    var mainVal = stats[c.statKey] || 50;
+    var subBonus = ((teiban + i) % 3) * 1.5;
+    if (c.id === 'b_thief' && stats.agi >= stats.str) subBonus += 4;
+    if (c.id === 'b_warrior' && stats.str >= stats.agi) subBonus += 4;
+    var score = mainVal + subBonus;
+    if (score > bestScore) {
+      bestScore = score;
+      bestClass = c;
+    }
+  }
+
+  return {
+    jobName: bestClass.name,
+    jobTier: tier,
+    jobType: bestClass.spriteType
+  };
+}
+
+function renderRacerSpriteSvg(teibanOrRacer, genderArg, sizeClass, faceLeftOpt) {
+  sizeClass = sizeClass || 'w-12 h-14';
+  var faceLeft = faceLeftOpt !== false;
+  var gender = genderArg === 'F' ? 'F' : 'M';
+  var jobType = 'atk';
+  var jobTier = 'B';
+  var teiban = typeof teibanOrRacer === 'number' ? teibanOrRacer : 1;
+
+  if (typeof teibanOrRacer === 'object' && teibanOrRacer !== null) {
+    var obj = teibanOrRacer;
+    gender = obj.gender === 'F' ? 'F' : 'M';
+    jobType = obj.jobType || 'atk';
+    jobTier = obj.jobTier || (obj.kyu === 'A1' ? 'A1' : (obj.kyu === 'A2' ? 'A2' : 'B'));
+    teiban = obj.teiban || 1;
+  }
+
+  var baseKey = jobType + '_' + gender;
+  var rows = JOB_SPRITE_BASES[baseKey] || JOB_SPRITE_BASES['atk_M'];
+  var bgRects = '';
+  var frame1Rects = '';
+  var frame2Rects = '';
+
+  if (jobTier === 'A1') {
+    bgRects += '<rect x="1" y="2" width="14" height="16" fill="#ffd447" opacity="0.22"/>';
+    bgRects += '<rect x="0" y="6" width="2" height="8" fill="#fef08a" opacity="0.6"/>';
+    bgRects += '<rect x="14" y="6" width="2" height="8" fill="#fef08a" opacity="0.6"/>';
+  } else if (jobTier === 'A2') {
+    bgRects += '<rect x="2" y="3" width="12" height="14" fill="#38bdf8" opacity="0.16"/>';
+  }
+
+  var totalRows = rows.length;
+  for (var y = 0; y < totalRows; y++) {
+    var row = rows[y] || '';
+    for (var x = 0; x < 16; x++) {
+      var ch = row[x];
+      var color = PIXEL_PALETTE[ch];
+      if (color && jobTier === 'B') {
+        if (ch === 'G') color = '#cbd5e1';
+      } else if (color && jobTier === 'A1') {
+        if (ch === 'A') color = '#ffd447';
+      }
+      if (!color) continue;
+
+      var drawX = faceLeft ? x : (15 - x);
+      frame1Rects += '<rect x="' + drawX + '" y="' + y + '" width="1" height="1" fill="' + color + '"/>';
+
+      var y2 = y;
+      if (y >= 16) {
+        if (x < 8) y2 = y - 1;
+      } else if (y >= 10 && y <= 14 && (x <= 3 || x >= 12)) {
+        y2 = y - 1;
+      }
+      frame2Rects += '<rect x="' + drawX + '" y="' + y2 + '" width="1" height="1" fill="' + color + '"/>';
+    }
+  }
+
+  var shadowSvg = '<ellipse cx="8" cy="19.3" rx="5.5" ry="1.1" fill="rgba(0,0,0,0.35)"/>';
+  var delaySec = ((teiban % 6) * -0.11).toFixed(2);
+
+  return '<svg viewBox="0 0 16 20" class="' + sizeClass + ' dq-sprite-anim shrink-0" style="animation-delay:' + delaySec + 's" shape-rendering="crispEdges">' +
+    shadowSvg +
+    bgRects +
+    '<g class="dq-frame-1" style="animation-delay:' + delaySec + 's">' + frame1Rects + '</g>' +
+    '<g class="dq-frame-2" style="animation-delay:' + delaySec + 's">' + frame2Rects + '</g>' +
+  '</svg>';
+}
+
+// ============================================================================
+// 3. Equipment Resolution (Class Calculation Support)
+// ============================================================================
+function resolveRacerEquipment(r, exStats) {
+  exStats = exStats || {};
+  var tilt = Number(r.tiltc);
+  if (isNaN(tilt)) tilt = -0.5;
+  var parts = String(r.parts || '').trim();
+  var ctaiju = Number(r.ctaiju) || 0;
+  var m2ren = Number(r.m2ren) || 30;
+
+  var isBestIsshu = exStats.minIsshu != null && r.isshu != null && r.isshu <= exStats.minIsshu + 0.01;
+  var isBestMawari = exStats.minMawari != null && r.mawari != null && r.mawari <= exStats.minMawari + 0.01;
+  var isBestChokusen = exStats.minChokusen != null && r.chokusen != null && r.chokusen <= exStats.minChokusen + 0.01;
+  var isBestTtime = exStats.avgTtime != null && r.ttime != null && r.ttime <= exStats.avgTtime - 0.04;
+
+  var mod = {};
+  if (isBestIsshu && isBestMawari && isBestChokusen) mod = { str: 16, dex: 16, agi: 14, wil: 10 };
+  else if (isBestIsshu && isBestMawari) mod = { str: 14, dex: 14, agi: 8, int: 8 };
+  else if (isBestIsshu && isBestChokusen) mod = { str: 14, agi: 14, mag: 8 };
+  else if (isBestMawari && isBestChokusen) mod = { dex: 14, agi: 14, wil: 8 };
+  else if (tilt >= 0.5) mod = { str: 14, agi: 10, cha: 14, mag: 8 };
+  else if (/リング|ピストン|シリンダ|クランク/.test(parts)) mod = { str: 14, vit: 12, cha: 8 };
+  else if (/ギヤ|キャリア|シャフト|電気|キャブ/.test(parts)) mod = { dex: 12, int: 10, lov: 10 };
+  else if (parts && parts !== '-' && parts !== 'なし') mod = { str: 10, dex: 10, vit: 8 };
+  else if (isBestIsshu) mod = { str: 12, dex: 8, int: 8 };
+  else if (isBestMawari) mod = { dex: 15, str: 6, wil: 6 };
+  else if (isBestChokusen) mod = { agi: 15, str: 8 };
+  else if (m2ren >= 42) mod = { vit: 12, mag: 12, str: 10 };
+  else if (isBestTtime) mod = { agi: 14, int: 6 };
+  else if (ctaiju > 0) mod = { vit: 10, str: 6 };
+
+  return { mod: mod };
+}
+
+// ============================================================================
+// 4. Global State & Utility Helpers
+// ============================================================================
+var state = {
+  dataLoaded: false,
+  raceTitle: 'データ未取得',
+  wind: { weather: '晴', dir: '北', label: '北 · 向かい風', speed: 3, temp: null, waterTemp: null },
+  racers: [],
+  party: [],
+  historyLoaded: false,
+  historyRecords: [] // { date, rno, temp, waterTemp, weather, windDir, windSpeed, sts:[...], rank1, rank2, rank3 }
+};
+
+function $(s) { return document.querySelector(s); }
+function pad2(n) { return String(n).padStart(2, '0'); }
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+    return { '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' }[c];
+  });
+}
+
+function parseCleanFloat(raw) {
+  if (raw == null) return NaN;
+  var str = String(raw)
+    .replace(/[０-９．－]/g, function(ch) {
+      return String.fromCharCode(ch.charCodeAt(0) - 0xFEE0);
+    })
+    .replace(/[^0-9.-]+/g, '');
+  if (!str || str === '-' || str === '.') return NaN;
+  return parseFloat(str);
+}
+
+function fetchWithTimeout(url, timeoutMs) {
+  timeoutMs = timeoutMs || 2500;
+  return new Promise(function(resolve, reject) {
+    var done = false;
+    var timer = setTimeout(function() {
+      if (!done) {
+        done = true;
+        reject(new Error('Timeout'));
+      }
+    }, timeoutMs);
+
+    fetch(url, { cache: 'no-store' })
+      .then(function(res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.text();
+      })
+      .then(function(text) {
+        if (!done) {
+          done = true;
+          clearTimeout(timer);
+          resolve(text);
+        }
+      })
+      .catch(function(err) {
+        if (!done) {
+          done = true;
+          clearTimeout(timer);
+          reject(err);
+        }
+      });
+  });
+}
+
+function fetchXmlWithFallback(url) {
+  return fetchWithTimeout(url, 2400).catch(function() {
+    var proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+    return fetchWithTimeout(proxyUrl, 2800);
+  });
+}
+
+function updateWeatherBadgeUI() {
+  var w = state.wind;
+  var badgeText = '気象: ' + (w.weather || '晴') + ' · ' + (w.dir || '北') + ' (' + (w.speed != null ? w.speed : 3) + 'm/s)';
+  if (w.temp != null) badgeText += ' 気温' + w.temp + '℃';
+  if ($('#weatherBadge')) $('#weatherBadge').textContent = badgeText;
+  if ($('#verifyWeatherHeader')) $('#verifyWeatherHeader').textContent = badgeText;
+}
+
+// ============================================================================
+// 5. Initialization & Event Listeners
+// ============================================================================
+function init() {
+  var now = new Date();
+  var dateEl = $('#dateInput');
+  if (dateEl) {
+    dateEl.value = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());
+  }
+
+  var raceSelectEl = $('#raceSelect');
+  if (raceSelectEl) {
+    var raceOpts = '';
+    for (var i = 1; i <= 12; i++) {
+      raceOpts += '<option value="' + i + '">' + i + 'R</option>';
+    }
+    raceSelectEl.innerHTML = raceOpts;
+  }
+
+  $('#soundToggleBtn').addEventListener('click', function() {
+    var on = SoundFX.toggle();
+    $('#soundToggleBtn').textContent = on ? '🔊 SE: ON' : '🔇 SE: OFF';
+    if (on) SoundFX.cursor();
+  });
+
+  $('#fetchOfficialBtn').addEventListener('click', function() {
+    SoundFX.confirm();
+    loadOfficialData();
+  });
+
+  $('#loadDemoBtn').addEventListener('click', function() {
+    SoundFX.spark();
+    loadDemoSampleData();
+  });
+
+  $('#goVerifyBtnTop').addEventListener('click', function() {
+    SoundFX.spark();
+    openVerificationScreen();
+  });
+
+  $('#goVerifyBtnBottom').addEventListener('click', function() {
+    SoundFX.spark();
+    openVerificationScreen();
+  });
+
+  $('#backToPhase1Btn').addEventListener('click', function() {
+    SoundFX.cursor();
+    $('#phase2').classList.add('hidden');
+    $('#phase1').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  $('#verifyFolderInput').addEventListener('change', function(e) {
+    if (e.target.files && e.target.files.length > 0) {
+      loadHistoryFromLocalFiles(e.target.files).then(function() {
+        runVerificationAnalysis();
+      });
+    }
+  });
+
+  state.dataLoaded = false;
+  state.racers = [];
+  updateWeatherBadgeUI();
+  renderPhase1Table();
+}
+
+// ============================================================================
+// 6. Official XML Parsing & Demo Data Fallback
+// ============================================================================
+function extractOritenFromXmlNode(bn) {
+  var out = { isshu: null, mawari: null, chokusen: null };
+  if (!bn) return out;
+
+  var pickTagVal = function(tags, minV, maxV) {
+    for (var i = 0; i < tags.length; i++) {
+      var nd = bn.querySelector(tags[i]);
+      if (nd && nd.textContent) {
+        var v = parseCleanFloat(nd.textContent);
+        if (!isNaN(v) && v >= minV && v <= maxV) return v;
+      }
+      if (bn.hasAttribute && bn.hasAttribute(tags[i])) {
+        var av = parseCleanFloat(bn.getAttribute(tags[i]));
+        if (!isNaN(av) && av >= minV && av <= maxV) return av;
+      }
+    }
+    return null;
+  };
+
+  out.isshu = pickTagVal(['rnd', 'isshu', 'isshutime', 'isshu_time', 'issyu', 'issyutime', 'issyu_time', 'laptime', 'around_time', 't_isshu', 'otime1'], 30.0, 45.0);
+  out.mawari = pickTagVal(['cnr', 'mawari', 'mawaritime', 'mawari_time', 'mawariashi', 'turn', 'turntime', 'turn_time', 't_mawari', 'otime2'], 4.0, 7.5);
+  out.chokusen = pickTagVal(['str', 'chokusen', 'chokusentime', 'chokusen_time', 'cyokusen', 'tyokusen', 'straight', 'straight_time', 't_chokusen', 'otime3'], 5.8, 8.8);
+
+  return out;
+}
+
+function applyOriginalXmlString(oRaw) {
+  if (!oRaw || !state.racers || state.racers.length === 0) return false;
+  var oXml = new DOMParser().parseFromString(oRaw, 'application/xml');
+  if (oXml.querySelector('parsererror')) return false;
+
+  var oRecords = oXml.querySelectorAll('record');
+  var foundCount = 0;
+
+  for (var j = 0; j < oRecords.length; j++) {
+    var on = oRecords[j];
+    var tbNode = on.querySelector('teiban, waku');
+    var tbAttr = on.getAttribute('teiban') || on.getAttribute('waku');
+    var tb = parseInt(tbAttr || (tbNode ? tbNode.textContent.trim() : ''), 10);
+    if (isNaN(tb) && oRecords.length === 6) tb = j + 1;
+
+    var t = state.racers.find(function(r) { return r.teiban === tb; });
+    if (!t) continue;
+
+    var ttNode = on.querySelector('ttime');
+    var tlNode = on.querySelector('tiltc');
+    var ctNode = on.querySelector('ctaiju');
+
+    var tt = parseCleanFloat(ttNode ? ttNode.textContent : '');
+    var tl = parseCleanFloat(tlNode ? tlNode.textContent : '');
+    var ct = parseCleanFloat(ctNode ? ctNode.textContent : '');
+
+    if (!isNaN(tt) && tt > 0 && t.ttime == null) t.ttime = tt;
+    if (!isNaN(tl)) t.tiltc = tl;
+    if (!isNaN(ct)) t.ctaiju = ct;
+
+    var ori = extractOritenFromXmlNode(on);
+    var hasAny = false;
+    if (ori.isshu != null) { t.isshu = ori.isshu; hasAny = true; }
+    if (ori.mawari != null) { t.mawari = ori.mawari; hasAny = true; }
+    if (ori.chokusen != null) { t.chokusen = ori.chokusen; hasAny = true; }
+    if (hasAny) foundCount++;
+  }
+  return foundCount > 0;
+}
+
+function applyBeforeXmlString(bRaw) {
+  if (!bRaw || !state.racers || state.racers.length === 0) return false;
+  var bXml = new DOMParser().parseFromString(bRaw, 'application/xml');
+  if (bXml.querySelector('parsererror')) return false;
+
+  // 気象情報（天気・風向・風速・気温・水温）がXMLに含まれていれば取得
+  var tenkiNode = bXml.querySelector('tenki, weather');
+  var kazamukiNode = bXml.querySelector('kazamuki, wind_dir, kaze_muki');
+  var fusokuNode = bXml.querySelector('fusoku, wind_speed, kaze');
+  var kionNode = bXml.querySelector('kion, temp');
+  var suionNode = bXml.querySelector('suion, water_temp');
+
+  if (tenkiNode && tenkiNode.textContent.trim()) state.wind.weather = tenkiNode.textContent.trim();
+  if (kazamukiNode && kazamukiNode.textContent.trim()) state.wind.dir = kazamukiNode.textContent.trim();
+  if (fusokuNode && fusokuNode.textContent.trim()) {
+    var ws = parseCleanFloat(fusokuNode.textContent);
+    if (!isNaN(ws)) state.wind.speed = ws;
+  }
+  if (kionNode && kionNode.textContent.trim()) {
+    var tp = parseCleanFloat(kionNode.textContent);
+    if (!isNaN(tp)) state.wind.temp = tp;
+  }
+  if (suionNode && suionNode.textContent.trim()) {
+    var wt = parseCleanFloat(suionNode.textContent);
+    if (!isNaN(wt)) state.wind.waterTemp = wt;
+  }
+  updateWeatherBadgeUI();
+
+  var bRecords = bXml.querySelectorAll('record');
+  var foundBefore = false;
+
+  for (var j = 0; j < bRecords.length; j++) {
+    var bn = bRecords[j];
+    var tbNode = bn.querySelector('teiban, waku');
+    var tbAttr = bn.getAttribute('teiban') || bn.getAttribute('waku');
+    var tb = parseInt(tbAttr || (tbNode ? tbNode.textContent.trim() : ''), 10);
+    if (isNaN(tb) && bRecords.length === 6) tb = j + 1;
+
+    var t = state.racers.find(function(r) { return r.teiban === tb; });
+    if (!t) continue;
+
+    var ttNode = bn.querySelector('ttime');
+    var stNode = bn.querySelector('sst');
+    var tlNode = bn.querySelector('tiltc');
+    var ctNode = bn.querySelector('ctaiju');
+
+    var tt = parseCleanFloat(ttNode ? ttNode.textContent : '');
+    var st = parseCleanFloat(stNode ? stNode.textContent : '');
+    var tl = parseCleanFloat(tlNode ? tlNode.textContent : '');
+    var ct = parseCleanFloat(ctNode ? ctNode.textContent : '');
+
+    if (!isNaN(tt) && tt > 0) { t.ttime = tt; foundBefore = true; }
+    if (!isNaN(st)) { t.sst = st; foundBefore = true; }
+    if (!isNaN(tl)) t.tiltc = tl;
+    if (!isNaN(ct)) t.ctaiju = ct;
+
+    var ori = extractOritenFromXmlNode(bn);
+    if (ori.isshu != null) t.isshu = ori.isshu;
+    if (ori.mawari != null) t.mawari = ori.mawari;
+    if (ori.chokusen != null) t.chokusen = ori.chokusen;
+
+    var partsNodes = bn.querySelectorAll('parts, buhin, koukan, parts_name');
+    var partsArr = [];
+    for (var pIdx = 0; pIdx < partsNodes.length; pIdx++) {
+      var pTxt = partsNodes[pIdx].textContent.trim();
+      if (pTxt && pTxt !== '-') partsArr.push(pTxt);
+    }
+    if (partsArr.length > 0) t.parts = partsArr.join('・');
+  }
+  return foundBefore;
+}
+
+function loadOfficialData() {
+  var date = $('#dateInput').value.replace(/-/g, '');
+  var race = pad2($('#raceSelect').value);
+  var fetchBtn = $('#fetchOfficialBtn');
+  var statusMsg = $('#fetchStatusMsg');
+  if (fetchBtn) fetchBtn.disabled = true;
+  if (statusMsg) statusMsg.textContent = '公式XMLデータを取得中...';
+
+  var baseUrl = 'https://www.boatrace-toda.jp/xml/kaisai/' + date + '/';
+
+  fetchXmlWithFallback(baseUrl + 'race_table_' + race + '.xml')
+    .then(function(raw) {
+      var xml = new DOMParser().parseFromString(raw, 'application/xml');
+      if (xml.querySelector('parsererror')) throw new Error('XMLパースエラー');
+
+      var recNodes = xml.querySelectorAll('record');
+      var records = [];
+      for (var i = 0; i < recNodes.length; i++) {
+        var n = recNodes[i];
+        var nameNode = n.querySelector('name');
+        var name = nameNode ? nameNode.textContent.trim() : '選手未定';
+        var sexNode = n.querySelector('seibetu');
+        var rawSex = sexNode ? sexNode.textContent.trim() : '';
+        var tbNode = n.querySelector('teiban');
+        var kyuNode = n.querySelector('kyu');
+        var zsyoNode = n.querySelector('zsyo');
+        var jsyoNode = n.querySelector('jsyo');
+        var m2renNode = n.querySelector('m2ren');
+        var pstNode = n.querySelector('p_st');
+
+        var tb = parseInt(tbNode ? tbNode.textContent.trim() : '', 10);
+        if (isNaN(tb) && recNodes.length === 6) tb = i + 1;
+
+        records.push({
+          teiban: tb || 0,
+          name: name,
+          gender: detectRacerGender(name, rawSex),
+          kyu: kyuNode ? kyuNode.textContent.trim() : 'B1',
+          zsyo: parseCleanFloat(zsyoNode ? zsyoNode.textContent : 4.5) || 4.5,
+          jsyo: parseCleanFloat(jsyoNode ? jsyoNode.textContent : 4.5) || 4.5,
+          m2ren: parseCleanFloat(m2renNode ? m2renNode.textContent : 30) || 30.0,
+          p_st: parseCleanFloat(pstNode ? pstNode.textContent : 0.17) || 0.17,
+          ttime: null,
+          sst: null,
+          isshu: null,
+          mawari: null,
+          chokusen: null,
+          tiltc: -0.5,
+          parts: '',
+          ctaiju: 0,
+          courseStats: null
+        });
+      }
+
+      records = records.filter(function(x) { return x.teiban >= 1 && x.teiban <= 6; });
+      records.sort(function(a, b) { return a.teiban - b.teiban; });
+
+      if (records.length !== 6) throw new Error('6艇分の出走表が未公開です');
+
+      state.dataLoaded = true;
+      state.racers = records;
+      state.raceTitle = '戸田 公式 ' + Number(race) + 'R';
+
+      var beforePromise = fetchXmlWithFallback(baseUrl + 'race_table_before_' + race + '.xml').catch(function() { return null; });
+      var originalPromise = fetchXmlWithFallback(baseUrl + 'race_table_original_' + race + '.xml').catch(function() { return null; });
+      var coursePromise = fetchXmlWithFallback(baseUrl + 'racer_course_in_result_' + race + '.xml').catch(function() { return null; });
+
+      return Promise.all([beforePromise, originalPromise, coursePromise]).then(function(results) {
+        if (fetchBtn) fetchBtn.disabled = false;
+        if (statusMsg) statusMsg.textContent = '★ 公式データ取得完了！';
+        if (results[0]) applyBeforeXmlString(results[0]);
+        if (results[1]) applyOriginalXmlString(results[1]);
+        if (results[2]) applyCourseStatsXml(results[2]);
+
+        if ($('#raceTitleDisplay')) $('#raceTitleDisplay').textContent = state.raceTitle;
+
+        buildPartyStats();
+        renderPhase1Table();
+      });
+    })
+    .catch(function() {
+      if (fetchBtn) fetchBtn.disabled = false;
+      if (statusMsg) statusMsg.textContent = '※選択日の公式XMLが未公開のため、右の「⚡デモ出走データ読込」もお試しいただけます。';
+    });
+}
+
+function loadDemoSampleData() {
+  var race = Number($('#raceSelect').value || 12);
+  state.dataLoaded = true;
+  state.raceTitle = '戸田 特別選抜戦 ' + race + 'R（デモ）';
+  state.wind = { weather: '晴', dir: '北', label: '北 · 向かい風', speed: 3, temp: 18.0, waterTemp: 16.5 };
+  updateWeatherBadgeUI();
+
+  state.racers = [
+    { teiban: 1, name: '桐生 順平', gender: 'M', kyu: 'A1', zsyo: 7.82, jsyo: 8.15, m2ren: 44.5, p_st: 0.13, ttime: 6.71, sst: 0.11, isshu: 36.25, mawari: 5.28, chokusen: 6.62, tiltc: -0.5, parts: '', ctaiju: 0, courseStats: { avgST: 0.13, first: 68, second: 18, third: 6 } },
+    { teiban: 2, name: '浜田 亜理沙', gender: 'F', kyu: 'A1', zsyo: 7.24, jsyo: 7.45, m2ren: 39.2, p_st: 0.14, ttime: 6.73, sst: 0.13, isshu: 36.38, mawari: 5.21, chokusen: 6.68, tiltc: -0.5, parts: 'リング1', ctaiju: 0, courseStats: { avgST: 0.14, first: 26, second: 38, third: 16 } },
+    { teiban: 3, name: '中田 竜太', gender: 'M', kyu: 'A2', zsyo: 6.38, jsyo: 6.82, m2ren: 46.8, p_st: 0.15, ttime: 6.69, sst: 0.12, isshu: 36.18, mawari: 5.24, chokusen: 6.58, tiltc: 0.0, parts: '', ctaiju: 0, courseStats: { avgST: 0.15, first: 24, second: 28, third: 22 } },
+    { teiban: 4, name: '清埜 翔子', gender: 'F', kyu: 'A2', zsyo: 6.12, jsyo: 6.45, m2ren: 36.4, p_st: 0.15, ttime: 6.74, sst: 0.14, isshu: 36.52, mawari: 5.32, chokusen: 6.65, tiltc: -0.5, parts: 'ギヤ', ctaiju: 0, courseStats: { avgST: 0.15, first: 21, second: 25, third: 24 } },
+    { teiban: 5, name: '佐藤 航', gender: 'M', kyu: 'B1', zsyo: 5.35, jsyo: 5.68, m2ren: 41.0, p_st: 0.16, ttime: 6.72, sst: 0.12, isshu: 36.45, mawari: 5.30, chokusen: 6.61, tiltc: 0.5, parts: '', ctaiju: 0, courseStats: { avgST: 0.16, first: 12, second: 22, third: 28 } },
+    { teiban: 6, name: '中田 夕貴', gender: 'F', kyu: 'B1', zsyo: 5.18, jsyo: 5.42, m2ren: 33.5, p_st: 0.17, ttime: 6.77, sst: 0.15, isshu: 36.70, mawari: 5.39, chokusen: 6.72, tiltc: -0.5, parts: '', ctaiju: 0.5, courseStats: { avgST: 0.17, first: 8, second: 16, third: 26 } }
+  ];
+  if ($('#raceTitleDisplay')) $('#raceTitleDisplay').textContent = state.raceTitle;
+  if ($('#fetchStatusMsg')) $('#fetchStatusMsg').textContent = '★ デモ出走データを読み込みました！';
+
+  buildPartyStats();
+  renderPhase1Table();
+}
+
+function applyCourseStatsXml(raw) {
+  var xml = new DOMParser().parseFromString(raw, 'application/xml');
+  if (xml.querySelector('parsererror')) return;
+  var byFrame = {};
+  var recs = xml.querySelectorAll('record');
+  for (var i = 0; i < recs.length; i++) {
+    var n = recs[i];
+    var frame = Number(n.getAttribute('waku') || (n.querySelector('waku') ? n.querySelector('waku').textContent : 0));
+    var course = Number(n.getAttribute('cose'));
+    if (!frame || !course) continue;
+    byFrame[frame] = byFrame[frame] || {};
+    byFrame[frame][course] = {
+      avgST: parseCleanFloat(n.querySelector('p_sttiming') ? n.querySelector('p_sttiming').textContent : 0) || 0,
+      first: parseCleanFloat(n.querySelector('chaku1') ? n.querySelector('chaku1').textContent : 0) || 0,
+      second: parseCleanFloat(n.querySelector('chaku2') ? n.querySelector('chaku2').textContent : 0) || 0,
+      third: parseCleanFloat(n.querySelector('chaku3') ? n.querySelector('chaku3').textContent : 0) || 0
+    };
+  }
+  for (var k = 0; k < state.racers.length; k++) {
+    var r = state.racers[k];
+    if (byFrame[r.teiban] && byFrame[r.teiban][r.teiban]) {
+      r.courseStats = byFrame[r.teiban][r.teiban];
+    }
+  }
+}
+
+function computeRankMap(list, key) {
+  var valid = [];
+  for (var i = 0; i < list.length; i++) {
+    var v = list[i][key];
+    if (v != null && !isNaN(v) && v > 0) valid.push(Number(v));
+  }
+  valid.sort(function(a, b) { return a - b; });
+  var map = {};
+  for (var j = 0; j < list.length; j++) {
+    var r = list[j];
+    var val = r[key];
+    if (val != null && !isNaN(val) && val > 0) {
+      var rank = 1;
+      for (var k = 0; k < valid.length; k++) {
+        if (valid[k] < val - 0.0001) rank++;
+      }
+      map[r.teiban] = rank;
+    } else {
+      map[r.teiban] = null;
+    }
+  }
+  return map;
+}
+
+function formatOritenBadge(val, rank) {
+  if (val == null || isNaN(val) || Number(val) <= 0) return '<span class="text-slate-500">-</span>';
+  var s = Number(val).toFixed(2);
+  if (rank === 1) {
+    return '<span class="text-red-800 font-bold">★' + s + '</span> <span class="px-1.5 py-0.5 rounded bg-amber-300 border border-amber-700 text-amber-950 text-[10px] font-bold">1位</span>';
+  }
+  if (rank === 2) {
+    return '<span class="text-sky-900 font-bold">' + s + '</span> <span class="px-1.5 py-0.5 rounded bg-sky-200 border border-sky-700 text-sky-950 text-[10px] font-bold">2位</span>';
+  }
+  return '<span class="text-slate-200">' + s + '</span>' + (rank ? ' <span class="text-[10px] text-slate-500">' + rank + '位</span>' : '');
+}
+
+function buildPartyStats() {
+  var calcMetricStats = function(key) {
+    var vals = [];
+    for (var idx = 0; idx < state.racers.length; idx++) {
+      var v = state.racers[idx][key];
+      if (v != null && !isNaN(v) && v > 0) vals.push(Number(v));
+    }
+    if (vals.length === 0) return { avg: null, min: null };
+    var sum = 0;
+    var minVal = vals[0];
+    for (var m = 0; m < vals.length; m++) {
+      sum += vals[m];
+      if (vals[m] < minVal) minVal = vals[m];
+    }
+    return { avg: sum / vals.length, min: minVal };
+  };
+
+  var ttimeStat = calcMetricStats('ttime');
+  var isshuStat = calcMetricStats('isshu');
+  var mawariStat = calcMetricStats('mawari');
+  var chokusenStat = calcMetricStats('chokusen');
+
+  var exStats = {
+    avgTtime: ttimeStat.avg, minTtime: ttimeStat.min,
+    avgIsshu: isshuStat.avg, minIsshu: isshuStat.min,
+    avgMawari: mawariStat.avg, minMawari: mawariStat.min,
+    avgChokusen: chokusenStat.avg, minChokusen: chokusenStat.min
+  };
+
+  var courseStr = [0, 12, 6, 9, 10, 5, 4];
+  var courseDex = [0, 6, 12, 8, 10, 11, 7];
+  var courseCha = [0, 2, 3, 5, 7, 9, 11];
+
+  state.party = state.racers.map(function(r) {
+    var gender = r.gender || detectRacerGender(r.name);
+    r.gender = gender;
+
+    var kyuBonus = r.kyu === 'A1' ? 9 : (r.kyu === 'A2' ? 5 : (r.kyu === 'B1' ? 2 : 0));
+    var zsyo = clamp(Number(r.zsyo) || 4.8, 3.2, 8.2);
+    var jsyo = clamp(Number(r.jsyo) || zsyo, 3.2, 8.2);
+    var m2ren = clamp(Number(r.m2ren) || 30, 15, 65);
+    var histST = Number(r.courseStats && r.courseStats.avgST) || Number(r.p_st) || 0.17;
+    var sst = (r.sst != null && !isNaN(r.sst)) ? Number(r.sst) : histST;
+    var effST = histST * 0.6 + sst * 0.4;
+
+    var ttimeEdge = (exStats.avgTtime != null && r.ttime != null) ? clamp((exStats.avgTtime - r.ttime) * 190, -14, 18) : 0;
+    var isshuEdge = (exStats.avgIsshu != null && r.isshu != null) ? clamp((exStats.avgIsshu - r.isshu) * 48, -16, 22) : 0;
+    var mawariEdge = (exStats.avgMawari != null && r.mawari != null) ? clamp((exStats.avgMawari - r.mawari) * 155, -16, 24) : 0;
+    var chokusenEdge = (exStats.avgChokusen != null && r.chokusen != null) ? clamp((exStats.avgChokusen - r.chokusen) * 185, -16, 24) : 0;
+
+    var tilt = Number(r.tiltc) || 0;
+    var c1 = (r.courseStats && r.courseStats.first != null) ? r.courseStats.first : (r.teiban === 1 ? 42 : 15);
+    var c23 = ((r.courseStats && r.courseStats.second != null) ? r.courseStats.second : 18) + ((r.courseStats && r.courseStats.third != null) ? r.courseStats.third : 18);
+
+    var str = Math.round(48 + courseStr[r.teiban] + jsyo * 3.8 + c1 * 0.35 + (m2ren - 30) * 0.55 + Math.round(isshuEdge * 0.7 + chokusenEdge * 0.5) + kyuBonus * 0.4);
+    var vit = Math.round(46 + jsyo * 3.9 + (m2ren - 28) * 0.65 + (r.teiban <= 3 ? 6 : 2) + (Number(r.ctaiju) || 0) * 6 + Math.round(isshuEdge * 0.5 + mawariEdge * 0.4) + kyuBonus * 0.5);
+    var dex = Math.round(48 + courseDex[r.teiban] + c23 * 0.58 + Math.max(0, jsyo - zsyo) * 8 + (m2ren - 28) * 0.45 + Math.round(mawariEdge * 1.0 + isshuEdge * 0.5) + kyuBonus * 0.4);
+    var agi = Math.round(52 + clamp((0.20 - effST) * 480, -12, 48) + ttimeEdge * 0.75 + Math.round(chokusenEdge * 0.9 + isshuEdge * 0.4) + kyuBonus * 0.3);
+    var intStat = Math.round(48 + zsyo * 4.5 + (m2ren - 25) * 0.52 + Math.abs(tilt) * 10 + ttimeEdge * 0.4 + Math.round((isshuEdge + mawariEdge) * 0.48) + kyuBonus * 0.45);
+    var mag = Math.round(44 + m2ren * 0.85 + Math.max(0, tilt + 0.5) * 12 + ttimeEdge * 0.6 + Math.round((isshuEdge + chokusenEdge) * 0.45) + kyuBonus * 0.45);
+    var wil = Math.round(47 + clamp((0.19 - histST) * 320, -8, 30) + jsyo * 3.5 + Math.round(mawariEdge * 0.5 + ttimeEdge * 0.3) + kyuBonus * 0.5);
+    var lov = Math.round(45 + c23 * 0.48 + zsyo * 3.2 + (r.parts ? 8 : 2) + Math.round(mawariEdge * 0.45 + isshuEdge * 0.35) + (gender === 'F' ? 4 : 1));
+    var underdogBonus = (r.kyu === 'B1' || r.kyu === 'B2') ? 6 : (r.kyu === 'A2' ? 3 : 0);
+    var cha = Math.round(40 + courseCha[r.teiban] + underdogBonus + (state.wind.speed >= 3 ? 6 : 2) + Math.max(0, tilt) * 10 + Math.round(Math.max(0, chokusenEdge) * 0.35) + (40 - Math.min(40, c1)) * 0.22);
+
+    var gear = resolveRacerEquipment(r, exStats);
+    str += gear.mod.str || 0;
+    vit += gear.mod.vit || 0;
+    dex += gear.mod.dex || 0;
+    agi += gear.mod.agi || 0;
+    intStat += gear.mod.int || 0;
+    mag += gear.mod.mag || 0;
+    wil += gear.mod.wil || 0;
+    lov += gear.mod.lov || 0;
+    cha += gear.mod.cha || 0;
+
+    var statsObj = { str: str, vit: vit, dex: dex, agi: agi, int: intStat, mag: mag, wil: wil, lov: lov, cha: cha };
+    var sagaJob = determineSagaClass(statsObj, r.kyu, r.teiban);
+
+    var baseObj = {};
+    for (var key in r) {
+      if (Object.prototype.hasOwnProperty.call(r, key)) {
+        baseObj[key] = r[key];
+      }
+    }
+
+    baseObj.gender = gender;
+    baseObj.jobType = sagaJob.jobType;
+    baseObj.jobTier = sagaJob.jobTier;
+    baseObj.job = sagaJob.jobName;
+    baseObj.effST = effST;
+    baseObj.exStats = exStats;
+
+    return baseObj;
+  });
+}
+
+function renderPhase1Table() {
+  var hasData = state.dataLoaded && state.racers && state.racers.length === 6;
+  var rosterSection = $('#rosterPreviewSection');
+  var noDataNotice = $('#noDataNotice');
+  var topVerifyBtn = $('#goVerifyBtnTop');
+
+  if (rosterSection) rosterSection.classList.toggle('hidden', !hasData);
+  if (noDataNotice) noDataNotice.classList.toggle('hidden', hasData);
+  if (topVerifyBtn) topVerifyBtn.classList.toggle('hidden', !hasData);
+
+  var tbody = $('#phase1TableBody');
+  if (!tbody) return;
+  if (!hasData) {
+    tbody.innerHTML = '';
+    return;
+  }
+
+  buildPartyStats();
+
+  var isshuRank = computeRankMap(state.party, 'isshu');
+  var mawariRank = computeRankMap(state.party, 'mawari');
+  var chokusenRank = computeRankMap(state.party, 'chokusen');
+
+  tbody.innerHTML = state.party.map(function(r) {
+    var g = r.gender || detectRacerGender(r.name);
+    var st = (r.courseStats && r.courseStats.avgST) || r.p_st;
+    var exTime = (r.ttime != null && !isNaN(r.ttime) && Number(r.ttime) > 0) ? Number(r.ttime).toFixed(2) : '-';
+    var exSt = (r.sst != null && !isNaN(r.sst)) ? Number(r.sst).toFixed(2) : '-';
+    var genderBadge = g === 'F'
+      ? '<span class="px-1.5 py-0.5 rounded bg-rose-200 border border-rose-700 text-rose-950 font-bold text-xs">♀</span>'
+      : '<span class="px-1.5 py-0.5 rounded bg-sky-200 border border-sky-700 text-sky-950 font-bold text-xs">♂</span>';
+
+    return '<tr class="bg-slate-950/90 hover:bg-slate-900/90 border-t-2 border-slate-700">' +
+      '<td rowspan="2" class="p-2 text-center align-middle border-r border-slate-800"><span class="boat-badge boat-' + r.teiban + '">' + r.teiban + '</span></td>' +
+      '<td rowspan="2" class="p-2.5 align-middle border-r border-slate-800 font-bold text-white whitespace-nowrap">' +
+        '<div class="flex items-center gap-2">' +
+          renderRacerSpriteSvg(r, g, 'w-9 h-9', true) +
+          '<div><div>' + esc(r.name) + '</div><div class="text-[11px] text-amber-300 font-bold">' + esc(r.job) + '</div></div>' +
+        '</div>' +
+      '</td>' +
+      '<td rowspan="2" class="p-2 text-center align-middle border-r border-slate-800 whitespace-nowrap">' + genderBadge + '</td>' +
+      '<td rowspan="2" class="p-2 text-center align-middle border-r border-slate-800 text-yellow-300 font-bold">' + esc(r.kyu) + '</td>' +
+      '<td class="p-2 text-right font-mono">' + Number(r.zsyo).toFixed(2) + '</td>' +
+      '<td class="p-2 text-right font-mono">' + Number(r.jsyo).toFixed(2) + '</td>' +
+      '<td class="p-2 text-right font-mono ' + (Number(r.m2ren) >= 40 ? 'text-yellow-300 font-bold' : '') + '">' + Number(r.m2ren).toFixed(1) + '%</td>' +
+      '<td class="p-2 text-right font-mono">' + Number(st).toFixed(2) + '</td>' +
+      '<td class="p-2 text-right font-mono">' + (r.tiltc != null ? Number(r.tiltc).toFixed(1) + '°' : '-0.5°') + '</td>' +
+    '</tr>' +
+    '<tr class="bg-cyan-950/25 hover:bg-cyan-950/40 border-b border-slate-800 text-xs">' +
+      '<td class="p-2 text-right font-mono text-slate-200 whitespace-nowrap border-t border-slate-800/80">' + exTime + ' / ' + exSt + '</td>' +
+      '<td class="p-2 text-right font-mono whitespace-nowrap border-t border-slate-800/80">' + formatOritenBadge(r.isshu, isshuRank[r.teiban]) + '</td>' +
+      '<td class="p-2 text-right font-mono whitespace-nowrap border-t border-slate-800/80">' + formatOritenBadge(r.mawari, mawariRank[r.teiban]) + '</td>' +
+      '<td colspan="2" class="p-2 text-right font-mono whitespace-nowrap border-t border-slate-800/80">' + formatOritenBadge(r.chokusen, chokusenRank[r.teiban]) + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+// ============================================================================
+// 7. 過去データ（demetodadata/raceresult_年.csv & demetodadata_年.csv）読込と検証ロジック
+// ============================================================================
+function parseStFloat(raw) {
+  if (!raw) return NaN;
+  var s = String(raw).trim();
+  if (/^F/i.test(s)) return -0.02; // フライングは極端に早いST扱い
+  if (/^L/i.test(s)) return 0.35;  // 出遅れ
+  s = s.replace(/[^0-9.]/g, '');
+  if (!s) return NaN;
+  var val = parseFloat(s);
+  return isNaN(val) ? NaN : val;
+}
+
+function parseCsvLines(text) {
+  var clean = String(text || '').replace(/^\uFEFF/, '').trim();
+  if (!clean) return [];
+  var lines = clean.split(/\r?\n/);
+  if (lines.length < 2) return [];
+  var headers = lines[0].split(',').map(function(h) { return h.replace(/^"|"$/g, '').trim(); });
+  var rows = [];
+  for (var i = 1; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (!line) continue;
+    var cols = line.split(',').map(function(c) { return c.replace(/^"|"$/g, '').trim(); });
+    var obj = {};
+    for (var j = 0; j < headers.length; j++) {
+      obj[headers[j]] = cols[j] !== undefined ? cols[j] : '';
+    }
+    rows.push(obj);
+  }
+  return rows;
+}
+
+function mergeHistoryData(resultRows, demeRows) {
+  var demeMap = {};
+  for (var i = 0; i < demeRows.length; i++) {
+    var d = demeRows[i];
+    if (d['日付'] && d['レース番号']) {
+      var key = d['日付'] + '_' + Number(d['レース番号']);
+      demeMap[key] = {
+        rank1: Number(d['1着']) || 0,
+        rank2: Number(d['2着']) || 0,
+        rank3: Number(d['3着']) || 0,
+        payout: Number(d['配当']) || 0
+      };
+    }
+  }
+
+  var merged = [];
+  for (var k = 0; k < resultRows.length; k++) {
+    var r = resultRows[k];
+    if (!r['日付'] || !r['レース番号']) continue;
+    var rno = Number(r['レース番号']);
+    var mKey = r['日付'] + '_' + rno;
+    var outcome = demeMap[mKey] || { rank1: 0, rank2: 0, rank3: 0, payout: 0 };
+
+    var sts = [
+      parseStFloat(r['1コースST']),
+      parseStFloat(r['2コースST']),
+      parseStFloat(r['3コースST']),
+      parseStFloat(r['4コースST']),
+      parseStFloat(r['5コースST']),
+      parseStFloat(r['6コースST'])
+    ];
+
+    merged.push({
+      date: r['日付'],
+      rno: rno,
+      temp: parseCleanFloat(r['気温']),
+      waterTemp: parseCleanFloat(r['水温']),
+      weather: r['天気'] || '',
+      windDir: r['風向'] || '',
+      windSpeed: parseCleanFloat(r['風速']),
+      sts: sts,
+      rank1: outcome.rank1,
+      rank2: outcome.rank2,
+      rank3: outcome.rank3,
+      payout: outcome.payout
+    });
+  }
+  return merged;
+}
+
+function autoLoadHistoryCsvs() {
+  if (state.historyLoaded && state.historyRecords.length > 0) {
+    return Promise.resolve(state.historyRecords);
+  }
+  if (window.location.protocol === 'file:') {
+    if ($('#localCsvPicker')) $('#localCsvPicker').classList.remove('hidden');
+    if ($('#historyLoadStatus')) {
+      $('#historyLoadStatus').textContent = '⚠ ローカル実行のため、下のボタンから「demetodadata」フォルダを選択してください';
+    }
+    return Promise.resolve([]);
+  }
+
+  var startYear = 2017;
+  var endYear = new Date().getFullYear() + 1;
+  var cacheBuster = Date.now();
+  var promises = [];
+
+  for (var y = startYear; y <= endYear; y++) {
+    (function(year) {
+      var resUrl = './demetodadata/raceresult_' + year + '.csv?t=' + cacheBuster;
+      var demeUrl = './demetodadata/demetodadata_' + year + '.csv?t=' + cacheBuster;
+      var p = Promise.all([
+        fetch(resUrl).then(function(r) { return r.ok ? r.text() : ''; }).catch(function() { return ''; }),
+        fetch(demeUrl).then(function(r) { return r.ok ? r.text() : ''; }).catch(function() { return ''; })
+      ]).then(function(texts) {
+        if (!texts[0] || texts[0].trim().indexOf('<!DOCTYPE') === 0) return [];
+        var resRows = parseCsvLines(texts[0]);
+        var demeRows = (texts[1] && texts[1].trim().indexOf('<!DOCTYPE') !== 0) ? parseCsvLines(texts[1]) : [];
+        return mergeHistoryData(resRows, demeRows);
+      });
+      promises.push(p);
+    })(y);
+  }
+
+  return Promise.all(promises).then(function(yearArrays) {
+    var all = [];
+    for (var i = 0; i < yearArrays.length; i++) {
+      all = all.concat(yearArrays[i]);
+    }
+    if (all.length > 0) {
+      state.historyLoaded = true;
+      state.historyRecords = all;
+      if ($('#historyLoadStatus')) {
+        $('#historyLoadStatus').textContent = '★ 過去データ読込完了（計 ' + all.length.toLocaleString() + ' レース）';
+      }
+    } else {
+      if ($('#localCsvPicker')) $('#localCsvPicker').classList.remove('hidden');
+      if ($('#historyLoadStatus')) {
+        $('#historyLoadStatus').textContent = '⚠ demetodadata/raceresult_年.csv が見つかりませんでした';
+      }
+    }
+    return all;
+  });
+}
+
+function loadHistoryFromLocalFiles(fileList) {
+  var files = Array.from(fileList).filter(function(f) { return f.name.toLowerCase().endsWith('.csv'); });
+  var resFiles = files.filter(function(f) { return f.name.indexOf('raceresult_') === 0; });
+  var demeFiles = files.filter(function(f) { return f.name.indexOf('demetodadata_') === 0; });
+
+  return Promise.all([
+    Promise.all(resFiles.map(function(f) { return f.text().then(parseCsvLines); })),
+    Promise.all(demeFiles.map(function(f) { return f.text().then(parseCsvLines); }))
+  ]).then(function(both) {
+    var allRes = [].concat.apply([], both[0]);
+    var allDeme = [].concat.apply([], both[1]);
+    var merged = mergeHistoryData(allRes, allDeme);
+    if (merged.length > 0) {
+      state.historyLoaded = true;
+      state.historyRecords = merged;
+      if ($('#historyLoadStatus')) {
+        $('#historyLoadStatus').textContent = '★ ローカルCSV読込完了（計 ' + merged.length.toLocaleString() + ' レース）';
+      }
+    }
+    return merged;
+  });
+}
+
+// 16方位の角度インデックス（風向の近さ判定用）
+var WIND_16_LIST = ['北', '北北東', '北東', '東北東', '東', '東南東', '南東', '南南東', '南', '南南西', '南西', '西南西', '西', '西北西', '北西', '北北西'];
+
+function getWindDirDiff(dirA, dirB) {
+  if (!dirA || !dirB) return 4;
+  if (dirA === dirB) return 0;
+  if (dirA === '無風' || dirB === '無風') return 3;
+  var idxA = WIND_16_LIST.indexOf(dirA);
+  var idxB = WIND_16_LIST.indexOf(dirB);
+  if (idxA === -1 || idxB === -1) return 4;
+  var diff = Math.abs(idxA - idxB);
+  return Math.min(diff, 16 - diff); // 0～8（0:一致, 1:隣の方位, 2:45度以内）
+}
+
+function openVerificationScreen() {
+  if (!state.dataLoaded || !state.party || state.party.length !== 6) return;
+  $('#phase1').classList.add('hidden');
+  $('#phase2').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if ($('#verifyRaceHeader')) {
+    $('#verifyRaceHeader').textContent = state.raceTitle + '（' + $('#dateInput').value + '）';
+  }
+  updateWeatherBadgeUI();
+
+  autoLoadHistoryCsvs().then(function() {
+    runVerificationAnalysis();
+  });
+}
+
+function runVerificationAnalysis() {
+  // 1. 当該レースの出走データから各選手の基礎戦力スコアを算出
+  // 戸田競艇のコース別基礎勝率ウェイト（1コース44%, 2コース16%, 3コース14%, 4コース13%, 5コース8%, 6コース5%）
+  var todaCourseBase = [0, 44.0, 16.5, 14.0, 13.0, 7.5, 5.0];
+
+  var candidates = state.party.map(function(r) {
+    var c = r.teiban;
+    var base = todaCourseBase[c] || 10;
+    var kyuScore = r.kyu === 'A1' ? 18 : (r.kyu === 'A2' ? 10 : (r.kyu === 'B1' ? 3 : 0));
+    var zsyoScore = (Number(r.zsyo) - 5.0) * 5.5;
+    var jsyoScore = (Number(r.jsyo) - 5.0) * 6.5;
+    var m2renScore = (Number(r.m2ren) - 33.0) * 0.75;
+
+    // スタート力（展示ST + 平均ST）
+    var stVal = r.effST || 0.16;
+    var stScore = clamp((0.17 - stVal) * 240, -14, 22);
+
+    // 展示タイム＆オリジナル展示評価
+    var ex = r.exStats || {};
+    var ttimeBonus = (ex.avgTtime && r.ttime) ? clamp((ex.avgTtime - r.ttime) * 220, -10, 14) : 0;
+    var isshuBonus = (ex.avgIsshu && r.isshu) ? clamp((ex.avgIsshu - r.isshu) * 55, -10, 15) : 0;
+    var mawariBonus = (ex.avgMawari && r.mawari) ? clamp((ex.avgMawari - r.mawari) * 160, -10, 15) : 0;
+    var chokusenBonus = (ex.avgChokusen && r.chokusen) ? clamp((ex.avgChokusen - r.chokusen) * 180, -10, 15) : 0;
+
+    var rawPower = Math.max(4, base + kyuScore + zsyoScore + jsyoScore + m2renScore + stScore + ttimeBonus + isshuBonus + mawariBonus + chokusenBonus);
+
+    return {
+      racer: r,
+      teiban: c,
+      rawPower: rawPower,
+      stVal: stVal,
+      similarMatched: 0,
+      similarWinCount: 0,
+      similarTop3Count: 0,
+      similarWinRate: 0,
+      similarTop3Rate: 0,
+      baselineWinRate: 0,
+      baselineTop3Rate: 0,
+      upliftWin: 0,
+      upliftTop3: 0,
+      gekiScore: 0,
+      gekiReasons: []
+    };
+  });
+
+  // 2. 過去データ（raceresult_年.csv）から気象条件・コース・STで近似するレースを抽出・評価
+  var targetDir = state.wind.dir || '北';
+  var targetSpeed = state.wind.speed != null ? Number(state.wind.speed) : 3;
+  var targetWeather = state.wind.weather || '晴';
+  var currentSts = candidates.map(function(c) { return c.stVal; });
+
+  var recordsWithOutcome = state.historyRecords.filter(function(rec) { return rec.rank1 >= 1 && rec.rank1 <= 6; });
+  var totalValidHistory = recordsWithOutcome.length;
+
+  // 全体ベースライン（全期間でのコース別1着率・3連対率）
+  var baseWinCounts = [0, 0, 0, 0, 0, 0, 0];
+  var baseTop3Counts = [0, 0, 0, 0, 0, 0, 0];
+  for (var b = 0; b < totalValidHistory; b++) {
+    var br = recordsWithOutcome[b];
+    baseWinCounts[br.rank1]++;
+    baseTop3Counts[br.rank1]++;
+    if (br.rank2 >= 1 && br.rank2 <= 6) baseTop3Counts[br.rank2]++;
+    if (br.rank3 >= 1 && br.rank3 <= 6) baseTop3Counts[br.rank3]++;
+  }
+
+  var similarRaces = [];
+  if (totalValidHistory > 0) {
+    for (var i = 0; i < totalValidHistory; i++) {
+      var rec = recordsWithOutcome[i];
+
+      // 気象類似度判定（風向・風速・天気）
+      var dirDiff = getWindDirDiff(targetDir, rec.windDir);
+      var speedDiff = !isNaN(rec.windSpeed) ? Math.abs(targetSpeed - rec.windSpeed) : 2;
+      if (dirDiff > 2 || speedDiff > 2.5) continue;
+
+      // 各コースのST近似度判定（全6コースの平均ST誤差およびトップSTの近さ）
+      var stDiffSum = 0;
+      var stValidCnt = 0;
+      for (var cIdx = 0; cIdx < 6; cIdx++) {
+        var histCourseSt = rec.sts[cIdx];
+        if (!isNaN(histCourseSt) && histCourseSt > 0) {
+          stDiffSum += Math.abs(currentSts[cIdx] - histCourseSt);
+          stValidCnt++;
+        }
+      }
+      if (stValidCnt < 4) continue;
+      var avgStDiff = stDiffSum / stValidCnt;
+      if (avgStDiff > 0.055) continue; // 全艇平均ST誤差0.055秒以内を近似レースとして抽出
+
+      // 近似スコア（高いほど条件が酷似）
+      var weatherBonus = (rec.weather === targetWeather) ? 10 : 0;
+      var simScore = 100 - (dirDiff * 12) - (speedDiff * 8) - (avgStDiff * 500) + weatherBonus;
+
+      similarRaces.push({
+        rec: rec,
+        simScore: simScore,
+        avgStDiff: avgStDiff
+      });
+    }
+  }
+
+  // 近似レースが少なすぎる場合は気象条件のみで緩和抽出
+  if (similarRaces.length < 15 && totalValidHistory > 0) {
+    similarRaces = [];
+    for (var j = 0; j < totalValidHistory; j++) {
+      var rec2 = recordsWithOutcome[j];
+      var dDiff = getWindDirDiff(targetDir, rec2.windDir);
+      var sDiff = !isNaN(rec2.windSpeed) ? Math.abs(targetSpeed - rec2.windSpeed) : 2;
+      if (dDiff <= 2 && sDiff <= 3.0) {
+        similarRaces.push({
+          rec: rec2,
+          simScore: 80 - dDiff * 10 - sDiff * 6,
+          avgStDiff: 0.06
+        });
+      }
+    }
+  }
+
+  similarRaces.sort(function(a, b) {
+    if (b.rec.date !== a.rec.date) return b.rec.date.localeCompare(a.rec.date);
+    return b.rec.rno - a.rec.rno;
+  });
+
+  if ($('#similarMatchSummary')) {
+    if (totalValidHistory > 0) {
+      $('#similarMatchSummary').textContent = '近似過去レース抽出: ' + similarRaces.length + ' 件 / 全 ' + totalValidHistory.toLocaleString() + ' 件';
+    } else {
+      $('#similarMatchSummary').textContent = '過去CSV未読込（出走・展示データのみで評価中）';
+    }
+  }
+
+  // 各コースの近似レース成績とベースライン比較
+  var simCount = similarRaces.length;
+  var simWinCounts = [0, 0, 0, 0, 0, 0, 0];
+  var simTop3Counts = [0, 0, 0, 0, 0, 0, 0];
+
+  for (var s = 0; s < simCount; s++) {
+    var sr = similarRaces[s].rec;
+    simWinCounts[sr.rank1]++;
+    simTop3Counts[sr.rank1]++;
+    if (sr.rank2 >= 1 && sr.rank2 <= 6) simTop3Counts[sr.rank2]++;
+    if (sr.rank3 >= 1 && sr.rank3 <= 6) simTop3Counts[sr.rank3]++;
+  }
+
+  for (var idx = 0; idx < candidates.length; idx++) {
+    var cand = candidates[idx];
+    var tb = cand.teiban;
+
+    if (totalValidHistory > 0) {
+      cand.baselineWinRate = (baseWinCounts[tb] / totalValidHistory) * 100;
+      cand.baselineTop3Rate = (baseTop3Counts[tb] / totalValidHistory) * 100;
+    } else {
+      cand.baselineWinRate = todaCourseBase[tb];
+      cand.baselineTop3Rate = todaCourseBase[tb] * 2.1;
+    }
+
+    if (simCount > 0) {
+      cand.similarMatched = simCount;
+      cand.similarWinCount = simWinCounts[tb];
+      cand.similarTop3Count = simTop3Counts[tb];
+      cand.similarWinRate = (simWinCounts[tb] / simCount) * 100;
+      cand.similarTop3Rate = (simTop3Counts[tb] / simCount) * 100;
+      cand.upliftWin = cand.similarWinRate - cand.baselineWinRate;
+      cand.upliftTop3 = cand.similarTop3Rate - cand.baselineTop3Rate;
+
+      // 近似レースでの好走上振れを総合戦力にも加味
+      cand.rawPower = Math.max(4, cand.rawPower + cand.upliftWin * 0.65 + cand.upliftTop3 * 0.25);
+    }
+
+    // ゲキ熱選手の判定（複数人抽出可能）
+    var reasons = [];
+    var gekiPoints = 0;
+
+    if (simCount > 0) {
+      if (cand.upliftWin >= 4.0) {
+        gekiPoints += 35 + cand.upliftWin;
+        reasons.push('近似条件の1着率 ' + cand.similarWinRate.toFixed(1) + '%（平均比 +' + cand.upliftWin.toFixed(1) + '%）');
+      }
+      if (cand.upliftTop3 >= 6.0) {
+        gekiPoints += 25 + cand.upliftTop3 * 0.7;
+        reasons.push('近似条件の3連対率 ' + cand.similarTop3Rate.toFixed(1) + '%（平均比 +' + cand.upliftTop3.toFixed(1) + '%）');
+      }
+    }
+
+    // コース×ST×展示の相乗評価
+    if (cand.stVal <= 0.13) {
+      gekiPoints += 22;
+      reasons.push('鋭いスタート気配（想定ST ' + cand.stVal.toFixed(2) + '）');
+    }
+    var exObj = cand.racer.exStats || {};
+    if (exObj.minMawari && cand.racer.mawari && cand.racer.mawari <= exObj.minMawari + 0.01) {
+      gekiPoints += 20;
+      reasons.push('まわり足展示 1位タイ（' + cand.racer.mawari.toFixed(2) + '）');
+    }
+    if (exObj.minChokusen && cand.racer.chokusen && cand.racer.chokusen <= exObj.minChokusen + 0.01) {
+      gekiPoints += 18;
+      reasons.push('直線展示 1位タイ（' + cand.racer.chokusen.toFixed(2) + '）');
+    }
+
+    cand.gekiScore = gekiPoints;
+    cand.gekiReasons = reasons;
+  }
+
+  // 3. Plackett-Luceモデル（全720通りの3連単順列確率の厳密集計）による1着・2着・3着確率の算出
+  var totalPower = candidates.reduce(function(acc, c) { return acc + c.rawPower; }, 0);
+  var weights = candidates.map(function(c) { return c.rawPower / totalPower; });
+
+  var prob1 = [0, 0, 0, 0, 0, 0];
+  var prob2 = [0, 0, 0, 0, 0, 0];
+  var prob3 = [0, 0, 0, 0, 0, 0];
+
+  for (var i1 = 0; i1 < 6; i1++) {
+    var p1 = weights[i1];
+    prob1[i1] += p1;
+    var rem1 = 1.0 - p1;
+    if (rem1 <= 0) continue;
+
+    for (var i2 = 0; i2 < 6; i2++) {
+      if (i2 === i1) continue;
+      var p2 = p1 * (weights[i2] / rem1);
+      prob2[i2] += p2;
+      var rem2 = rem1 - weights[i2];
+      if (rem2 <= 0) continue;
+
+      for (var i3 = 0; i3 < 6; i3++) {
+        if (i3 === i1 || i3 === i2) continue;
+        var p3 = p2 * (weights[i3] / rem2);
+        prob3[i3] += p3;
+      }
+    }
+  }
+
+  for (var m = 0; m < 6; m++) {
+    candidates[m].p1 = prob1[m] * 100;
+    candidates[m].p2 = prob2[m] * 100;
+    candidates[m].p3 = prob3[m] * 100;
+    candidates[m].pTop3 = (prob1[m] + prob2[m] + prob3[m]) * 100;
+    candidates[m].evalIndex = candidates[m].p1 * 1.4 + candidates[m].p2 * 0.9 + candidates[m].p3 * 0.6;
+  }
+
+  // 4. 評価順にソートして ◎・〇・▲・△ を付与
+  var ranked = candidates.slice().sort(function(a, b) { return b.evalIndex - a.evalIndex; });
+  var markDefs = [
+    { symbol: '◎', label: '本命', cls: 'mark-honmei' },
+    { symbol: '〇', label: '対抗', cls: 'mark-taikou' },
+    { symbol: '▲', label: '単穴', cls: 'mark-tanana' },
+    { symbol: '△', label: '連下', cls: 'mark-renka' }
+  ];
+
+  var markMap = {};
+  for (var rk = 0; rk < ranked.length; rk++) {
+    markMap[ranked[rk].teiban] = rk < 4 ? markDefs[rk] : { symbol: '・', label: '無印', cls: 'mark-none' };
+  }
+
+  renderVerificationUI(candidates, ranked, markMap, similarRaces);
+}
+
+function renderVerificationUI(candidates, ranked, markMap, similarRaces) {
+  // 1. ゲキ熱選手の抽出（基準スコア35以上、該当がなければ最上位1名を表示）
+  var gekiList = ranked.filter(function(c) { return c.gekiScore >= 35 && c.gekiReasons.length > 0; });
+  if (gekiList.length === 0) {
+    var fallback = ranked[0];
+    if (fallback.gekiReasons.length === 0) {
+      fallback.gekiReasons.push('総合評価トップ（1着期待度 ' + fallback.p1.toFixed(1) + '% / 3連対率 ' + fallback.pTop3.toFixed(1) + '%）');
+    }
+    gekiList = [fallback];
+  }
+
+  var gekiContainer = $('#gekiAtsuContainer');
+  if (gekiContainer) {
+    gekiContainer.innerHTML = gekiList.map(function(c) {
+      var r = c.racer;
+      var mk = markMap[c.teiban];
+      var reasonsHtml = c.gekiReasons.map(function(rs) {
+        return '<li class="text-xs text-red-950 font-bold">・' + esc(rs) + '</li>';
+      }).join('');
+
+      return '<div class="geki-card rounded-lg p-3.5 space-y-2">' +
+        '<div class="flex items-center justify-between gap-2">' +
+          '<div class="flex items-center gap-2">' +
+            '<span class="boat-badge boat-' + r.teiban + '">' + r.teiban + '</span>' +
+            '<span class="mark-badge ' + mk.cls + '">' + mk.symbol + '</span>' +
+            renderRacerSpriteSvg(r, r.gender, 'w-10 h-10', true) +
+            '<div>' +
+              '<div class="text-sm sm:text-base font-bold text-red-950">' + esc(r.name) + ' <span class="text-xs text-amber-900">(' + esc(r.kyu) + ' / ' + esc(r.job) + ')</span></div>' +
+              '<div class="text-[11px] font-bold text-red-800">1着率: ' + c.p1.toFixed(1) + '% ／ 3連対率: ' + c.pTop3.toFixed(1) + '%</div>' +
+            '</div>' +
+          '</div>' +
+          '<span class="px-2 py-1 rounded bg-red-700 text-yellow-200 font-bold text-xs shrink-0">🔥 ゲキ熱</span>' +
+        '</div>' +
+        '<ul class="pt-1.5 border-t border-red-900/20 space-y-0.5">' + reasonsHtml + '</ul>' +
+      '</div>';
+    }).join('');
+  }
+
+  // 2. 全6艇 評価・印・確率テーブル描画（1〜6枠順）
+  var evalBody = $('#evalTableBody');
+  if (evalBody) {
+    evalBody.innerHTML = candidates.map(function(c) {
+      var r = c.racer;
+      var mk = markMap[c.teiban];
+      var isGeki = gekiList.some(function(g) { return g.teiban === c.teiban; });
+      var simInfo = c.similarMatched > 0
+        ? '<span class="font-bold text-red-900">1着 ' + c.similarWinRate.toFixed(1) + '%</span><span class="block text-[10px] text-slate-400">3連対 ' + c.similarTop3Rate.toFixed(1) + '%</span>'
+        : '<span class="text-[11px] text-slate-400">-</span>';
+
+      return '<tr class="bg-slate-950/90 hover:bg-slate-900/90 border-b border-slate-800">' +
+        '<td class="p-2 text-center"><span class="boat-badge boat-' + r.teiban + '">' + r.teiban + '</span></td>' +
+        '<td class="p-2 text-center"><span class="mark-badge ' + mk.cls + '" title="' + mk.label + '">' + mk.symbol + '</span></td>' +
+        '<td class="p-2 font-bold text-white whitespace-nowrap">' +
+          '<div class="flex items-center gap-1.5">' +
+            renderRacerSpriteSvg(r, r.gender, 'w-8 h-8', true) +
+            '<div>' +
+              '<div>' + esc(r.name) + (isGeki ? ' <span class="px-1 py-0.2 rounded bg-red-700 text-yellow-200 text-[10px]">🔥</span>' : '') + '</div>' +
+              '<div class="text-[10px] text-amber-300">' + esc(r.kyu) + ' · ' + esc(r.job) + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</td>' +
+        '<td class="p-2 text-right font-mono font-bold text-red-900">' + c.p1.toFixed(1) + '%</td>' +
+        '<td class="p-2 text-right font-mono font-bold text-sky-900">' + c.p2.toFixed(1) + '%</td>' +
+        '<td class="p-2 text-right font-mono font-bold text-emerald-900">' + c.p3.toFixed(1) + '%</td>' +
+        '<td class="p-2 text-right font-mono font-bold">' + c.pTop3.toFixed(1) + '%</td>' +
+        '<td class="p-2 text-right font-mono whitespace-nowrap">' + simInfo + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  // 3. 近似した過去レース事例（最大10件）
+  var simListEl = $('#similarRacesList');
+  if (simListEl) {
+    if (similarRaces.length === 0) {
+      simListEl.innerHTML = '<div class="p-4 text-center text-xs text-slate-400">近似条件の過去レースデータがありません（demetodadataフォルダ内のCSVを確認してください）。</div>';
+    } else {
+      var topSamples = similarRaces.slice(0, 10);
+      var rowsHtml = topSamples.map(function(item) {
+        var rc = item.rec;
+        var stStr = rc.sts.map(function(v, idx) {
+          return !isNaN(v) ? (idx + 1) + 'C:' + v.toFixed(2) : '';
+        }).filter(Boolean).join(' ');
+
+        return '<tr class="border-b border-slate-800 text-xs">' +
+          '<td class="p-2 font-mono whitespace-nowrap">' + esc(rc.date) + ' ' + rc.rno + 'R</td>' +
+          '<td class="p-2 whitespace-nowrap">' + esc(rc.weather) + ' · ' + esc(rc.windDir) + ' ' + (isNaN(rc.windSpeed) ? '-' : rc.windSpeed + 'm') + '</td>' +
+          '<td class="p-2 font-bold whitespace-nowrap">' +
+            '<span class="boat-badge boat-' + rc.rank1 + '" style="width:20px;height:20px;font-size:11px;">' + rc.rank1 + '</span>-' +
+            '<span class="boat-badge boat-' + rc.rank2 + '" style="width:20px;height:20px;font-size:11px;">' + rc.rank2 + '</span>-' +
+            '<span class="boat-badge boat-' + rc.rank3 + '" style="width:20px;height:20px;font-size:11px;">' + rc.rank3 + '</span>' +
+          '</td>' +
+          '<td class="p-2 text-right font-mono font-bold text-red-900 whitespace-nowrap">' + (rc.payout > 0 ? rc.payout.toLocaleString() + '円' : '-') + '</td>' +
+          '<td class="p-2 font-mono text-[11px] text-slate-400 whitespace-nowrap">' + esc(stStr) + '</td>' +
+        '</tr>';
+      }).join('');
+
+      simListEl.innerHTML = '<table class="w-full text-left border-collapse">' +
+        '<thead><tr class="bg-slate-900 text-yellow-300 text-[11px] border-b border-slate-700">' +
+          '<th class="p-2">開催日 / R</th>' +
+          '<th class="p-2">気象・風</th>' +
+          '<th class="p-2">3連単結果</th>' +
+          '<th class="p-2 text-right">配当</th>' +
+          '<th class="p-2">各コースST</th>' +
+        '</tr></thead>' +
+        '<tbody>' + rowsHtml + '</tbody>' +
+      '</table>';
+    }
+  }
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+<br><br>
+</body>
+</html>
