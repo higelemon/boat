@@ -216,7 +216,6 @@
     animation: gekiPulse 1.6s infinite;
   }
 
-  /* 2コマ待機アニメーション */
   @keyframes dqWalkFrame1 {
     0%, 49.9% { opacity: 1; }
     50%, 100% { opacity: 0; }
@@ -454,7 +453,6 @@
             </table>
           </div>
 
-          <!-- 下部アクション：過去データで検証ボタン -->
           <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <button id="goVerifyBtnBottom" type="button" class="dq-btn dq-btn-verify w-full sm:w-auto text-base py-3 px-8">
               <span class="cursor-blink">▶</span> 過去データで検証
@@ -476,7 +474,6 @@
       <div class="dq-window p-4 sm:p-6 pt-7 space-y-5">
         <div class="dq-window-title">検証の章（戦局・過去気象近似解析）</div>
 
-        <!-- 上部ナビゲーション＆レース情報 -->
         <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b-2 border-amber-700/40">
           <button id="backToPhase1Btn" type="button" class="dq-btn text-xs sm:text-sm py-1.5 px-3">
             ◀ データ取得へ戻る
@@ -487,7 +484,6 @@
           </div>
         </div>
 
-        <!-- 過去CSV読込ステータス / ローカル手動選択バー -->
         <div id="historyStatusBox" class="p-3 rounded-lg border border-amber-600/60 bg-slate-950/90 text-xs space-y-2">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <span id="historyLoadStatus" class="font-bold text-cyan-300">⏳ demetodadata/raceresult_年.csv を検索中...</span>
@@ -502,7 +498,6 @@
           </div>
         </div>
 
-        <!-- 🔥 ゲキ熱選手ピックアップエリア -->
         <div class="space-y-2.5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h3 class="text-base sm:text-lg font-bold text-yellow-300">
@@ -510,12 +505,9 @@
             </h3>
             <span class="text-[11px] sm:text-xs text-slate-400">※近似条件で好走率・上振れ値が際立つ選手を自動抽出</span>
           </div>
-          <div id="gekiAtsuContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <!-- JSで動的生成 -->
-          </div>
+          <div id="gekiAtsuContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
         </div>
 
-        <!-- 📊 全6艇 総合評価・印・1着/2着/3着確率テーブル -->
         <div class="space-y-2.5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h3 class="text-base sm:text-lg font-bold text-yellow-300">
@@ -543,21 +535,16 @@
                   <th class="p-2 text-right">近似過去実績</th>
                 </tr>
               </thead>
-              <tbody id="evalTableBody">
-                <!-- JSで動的生成 -->
-              </tbody>
+              <tbody id="evalTableBody"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- 📜 近似条件に一致した過去の類似レースサンプル一覧 -->
         <div class="space-y-2">
           <h3 class="text-sm sm:text-base font-bold text-cyan-300">
             ▼ 気象・STが近似した過去レース事例（直近サンプル）
           </h3>
-          <div id="similarRacesList" class="overflow-x-auto rounded-lg border border-slate-600 bg-slate-950/90">
-            <!-- JSで動的生成 -->
-          </div>
+          <div id="similarRacesList" class="overflow-x-auto rounded-lg border border-slate-600 bg-slate-950/90"></div>
         </div>
 
       </div>
@@ -1061,7 +1048,7 @@ var state = {
   racers: [],
   party: [],
   historyLoaded: false,
-  historyRecords: [] // { date, rno, temp, waterTemp, weather, windDir, windSpeed, sts:[...], rank1, rank2, rank3 }
+  historyRecords: []
 };
 
 function $(s) { return document.querySelector(s); }
@@ -1069,7 +1056,7 @@ function pad2(n) { return String(n).padStart(2, '0'); }
 function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
-    return { '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' }[c];
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
   });
 }
 
@@ -1151,46 +1138,60 @@ function init() {
     raceSelectEl.innerHTML = raceOpts;
   }
 
-  $('#soundToggleBtn').addEventListener('click', function() {
-    var on = SoundFX.toggle();
-    $('#soundToggleBtn').textContent = on ? '🔊 SE: ON' : '🔇 SE: OFF';
-    if (on) SoundFX.cursor();
-  });
+  if ($('#soundToggleBtn')) {
+    $('#soundToggleBtn').addEventListener('click', function() {
+      var on = SoundFX.toggle();
+      $('#soundToggleBtn').textContent = on ? '🔊 SE: ON' : '🔇 SE: OFF';
+      if (on) SoundFX.cursor();
+    });
+  }
 
-  $('#fetchOfficialBtn').addEventListener('click', function() {
-    SoundFX.confirm();
-    loadOfficialData();
-  });
+  if ($('#fetchOfficialBtn')) {
+    $('#fetchOfficialBtn').addEventListener('click', function() {
+      SoundFX.confirm();
+      loadOfficialData();
+    });
+  }
 
-  $('#loadDemoBtn').addEventListener('click', function() {
-    SoundFX.spark();
-    loadDemoSampleData();
-  });
+  if ($('#loadDemoBtn')) {
+    $('#loadDemoBtn').addEventListener('click', function() {
+      SoundFX.spark();
+      loadDemoSampleData();
+    });
+  }
 
-  $('#goVerifyBtnTop').addEventListener('click', function() {
-    SoundFX.spark();
-    openVerificationScreen();
-  });
+  if ($('#goVerifyBtnTop')) {
+    $('#goVerifyBtnTop').addEventListener('click', function() {
+      SoundFX.spark();
+      openVerificationScreen();
+    });
+  }
 
-  $('#goVerifyBtnBottom').addEventListener('click', function() {
-    SoundFX.spark();
-    openVerificationScreen();
-  });
+  if ($('#goVerifyBtnBottom')) {
+    $('#goVerifyBtnBottom').addEventListener('click', function() {
+      SoundFX.spark();
+      openVerificationScreen();
+    });
+  }
 
-  $('#backToPhase1Btn').addEventListener('click', function() {
-    SoundFX.cursor();
-    $('#phase2').classList.add('hidden');
-    $('#phase1').classList.remove('hidden');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
+  if ($('#backToPhase1Btn')) {
+    $('#backToPhase1Btn').addEventListener('click', function() {
+      SoundFX.cursor();
+      $('#phase2').classList.add('hidden');
+      $('#phase1').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 
-  $('#verifyFolderInput').addEventListener('change', function(e) {
-    if (e.target.files && e.target.files.length > 0) {
-      loadHistoryFromLocalFiles(e.target.files).then(function() {
-        runVerificationAnalysis();
-      });
-    }
-  });
+  if ($('#verifyFolderInput')) {
+    $('#verifyFolderInput').addEventListener('change', function(e) {
+      if (e.target.files && e.target.files.length > 0) {
+        loadHistoryFromLocalFiles(e.target.files).then(function() {
+          runVerificationAnalysis();
+        });
+      }
+    });
+  }
 
   state.dataLoaded = false;
   state.racers = [];
@@ -1272,7 +1273,6 @@ function applyBeforeXmlString(bRaw) {
   var bXml = new DOMParser().parseFromString(bRaw, 'application/xml');
   if (bXml.querySelector('parsererror')) return false;
 
-  // 気象情報（天気・風向・風速・気温・水温）がXMLに含まれていれば取得
   var tenkiNode = bXml.querySelector('tenki, weather');
   var kazamukiNode = bXml.querySelector('kazamuki, wind_dir, kaze_muki');
   var fusokuNode = bXml.querySelector('fusoku, wind_speed, kaze');
@@ -1669,8 +1669,8 @@ function renderPhase1Table() {
 function parseStFloat(raw) {
   if (!raw) return NaN;
   var s = String(raw).trim();
-  if (/^F/i.test(s)) return -0.02; // フライングは極端に早いST扱い
-  if (/^L/i.test(s)) return 0.35;  // 出遅れ
+  if (/^F/i.test(s)) return -0.02;
+  if (/^L/i.test(s)) return 0.35;
   s = s.replace(/[^0-9.]/g, '');
   if (!s) return NaN;
   var val = parseFloat(s);
@@ -1825,7 +1825,6 @@ function loadHistoryFromLocalFiles(fileList) {
   });
 }
 
-// 16方位の角度インデックス（風向の近さ判定用）
 var WIND_16_LIST = ['北', '北北東', '北東', '東北東', '東', '東南東', '南東', '南南東', '南', '南南西', '南西', '西南西', '西', '西北西', '北西', '北北西'];
 
 function getWindDirDiff(dirA, dirB) {
@@ -1836,7 +1835,7 @@ function getWindDirDiff(dirA, dirB) {
   var idxB = WIND_16_LIST.indexOf(dirB);
   if (idxA === -1 || idxB === -1) return 4;
   var diff = Math.abs(idxA - idxB);
-  return Math.min(diff, 16 - diff); // 0～8（0:一致, 1:隣の方位, 2:45度以内）
+  return Math.min(diff, 16 - diff);
 }
 
 function openVerificationScreen() {
@@ -1856,8 +1855,6 @@ function openVerificationScreen() {
 }
 
 function runVerificationAnalysis() {
-  // 1. 当該レースの出走データから各選手の基礎戦力スコアを算出
-  // 戸田競艇のコース別基礎勝率ウェイト（1コース44%, 2コース16%, 3コース14%, 4コース13%, 5コース8%, 6コース5%）
   var todaCourseBase = [0, 44.0, 16.5, 14.0, 13.0, 7.5, 5.0];
 
   var candidates = state.party.map(function(r) {
@@ -1868,11 +1865,9 @@ function runVerificationAnalysis() {
     var jsyoScore = (Number(r.jsyo) - 5.0) * 6.5;
     var m2renScore = (Number(r.m2ren) - 33.0) * 0.75;
 
-    // スタート力（展示ST + 平均ST）
     var stVal = r.effST || 0.16;
     var stScore = clamp((0.17 - stVal) * 240, -14, 22);
 
-    // 展示タイム＆オリジナル展示評価
     var ex = r.exStats || {};
     var ttimeBonus = (ex.avgTtime && r.ttime) ? clamp((ex.avgTtime - r.ttime) * 220, -10, 14) : 0;
     var isshuBonus = (ex.avgIsshu && r.isshu) ? clamp((ex.avgIsshu - r.isshu) * 55, -10, 15) : 0;
@@ -1900,7 +1895,6 @@ function runVerificationAnalysis() {
     };
   });
 
-  // 2. 過去データ（raceresult_年.csv）から気象条件・コース・STで近似するレースを抽出・評価
   var targetDir = state.wind.dir || '北';
   var targetSpeed = state.wind.speed != null ? Number(state.wind.speed) : 3;
   var targetWeather = state.wind.weather || '晴';
@@ -1909,7 +1903,6 @@ function runVerificationAnalysis() {
   var recordsWithOutcome = state.historyRecords.filter(function(rec) { return rec.rank1 >= 1 && rec.rank1 <= 6; });
   var totalValidHistory = recordsWithOutcome.length;
 
-  // 全体ベースライン（全期間でのコース別1着率・3連対率）
   var baseWinCounts = [0, 0, 0, 0, 0, 0, 0];
   var baseTop3Counts = [0, 0, 0, 0, 0, 0, 0];
   for (var b = 0; b < totalValidHistory; b++) {
@@ -1925,12 +1918,10 @@ function runVerificationAnalysis() {
     for (var i = 0; i < totalValidHistory; i++) {
       var rec = recordsWithOutcome[i];
 
-      // 気象類似度判定（風向・風速・天気）
       var dirDiff = getWindDirDiff(targetDir, rec.windDir);
       var speedDiff = !isNaN(rec.windSpeed) ? Math.abs(targetSpeed - rec.windSpeed) : 2;
       if (dirDiff > 2 || speedDiff > 2.5) continue;
 
-      // 各コースのST近似度判定（全6コースの平均ST誤差およびトップSTの近さ）
       var stDiffSum = 0;
       var stValidCnt = 0;
       for (var cIdx = 0; cIdx < 6; cIdx++) {
@@ -1942,9 +1933,8 @@ function runVerificationAnalysis() {
       }
       if (stValidCnt < 4) continue;
       var avgStDiff = stDiffSum / stValidCnt;
-      if (avgStDiff > 0.055) continue; // 全艇平均ST誤差0.055秒以内を近似レースとして抽出
+      if (avgStDiff > 0.055) continue;
 
-      // 近似スコア（高いほど条件が酷似）
       var weatherBonus = (rec.weather === targetWeather) ? 10 : 0;
       var simScore = 100 - (dirDiff * 12) - (speedDiff * 8) - (avgStDiff * 500) + weatherBonus;
 
@@ -1956,7 +1946,6 @@ function runVerificationAnalysis() {
     }
   }
 
-  // 近似レースが少なすぎる場合は気象条件のみで緩和抽出
   if (similarRaces.length < 15 && totalValidHistory > 0) {
     similarRaces = [];
     for (var j = 0; j < totalValidHistory; j++) {
@@ -1986,7 +1975,6 @@ function runVerificationAnalysis() {
     }
   }
 
-  // 各コースの近似レース成績とベースライン比較
   var simCount = similarRaces.length;
   var simWinCounts = [0, 0, 0, 0, 0, 0, 0];
   var simTop3Counts = [0, 0, 0, 0, 0, 0, 0];
@@ -2020,11 +2008,9 @@ function runVerificationAnalysis() {
       cand.upliftWin = cand.similarWinRate - cand.baselineWinRate;
       cand.upliftTop3 = cand.similarTop3Rate - cand.baselineTop3Rate;
 
-      // 近似レースでの好走上振れを総合戦力にも加味
       cand.rawPower = Math.max(4, cand.rawPower + cand.upliftWin * 0.65 + cand.upliftTop3 * 0.25);
     }
 
-    // ゲキ熱選手の判定（複数人抽出可能）
     var reasons = [];
     var gekiPoints = 0;
 
@@ -2039,7 +2025,6 @@ function runVerificationAnalysis() {
       }
     }
 
-    // コース×ST×展示の相乗評価
     if (cand.stVal <= 0.13) {
       gekiPoints += 22;
       reasons.push('鋭いスタート気配（想定ST ' + cand.stVal.toFixed(2) + '）');
@@ -2058,7 +2043,6 @@ function runVerificationAnalysis() {
     cand.gekiReasons = reasons;
   }
 
-  // 3. Plackett-Luceモデル（全720通りの3連単順列確率の厳密集計）による1着・2着・3着確率の算出
   var totalPower = candidates.reduce(function(acc, c) { return acc + c.rawPower; }, 0);
   var weights = candidates.map(function(c) { return c.rawPower / totalPower; });
 
@@ -2095,7 +2079,6 @@ function runVerificationAnalysis() {
     candidates[m].evalIndex = candidates[m].p1 * 1.4 + candidates[m].p2 * 0.9 + candidates[m].p3 * 0.6;
   }
 
-  // 4. 評価順にソートして ◎・〇・▲・△ を付与
   var ranked = candidates.slice().sort(function(a, b) { return b.evalIndex - a.evalIndex; });
   var markDefs = [
     { symbol: '◎', label: '本命', cls: 'mark-honmei' },
@@ -2113,7 +2096,6 @@ function runVerificationAnalysis() {
 }
 
 function renderVerificationUI(candidates, ranked, markMap, similarRaces) {
-  // 1. ゲキ熱選手の抽出（基準スコア35以上、該当がなければ最上位1名を表示）
   var gekiList = ranked.filter(function(c) { return c.gekiScore >= 35 && c.gekiReasons.length > 0; });
   if (gekiList.length === 0) {
     var fallback = ranked[0];
@@ -2150,7 +2132,6 @@ function renderVerificationUI(candidates, ranked, markMap, similarRaces) {
     }).join('');
   }
 
-  // 2. 全6艇 評価・印・確率テーブル描画（1〜6枠順）
   var evalBody = $('#evalTableBody');
   if (evalBody) {
     evalBody.innerHTML = candidates.map(function(c) {
@@ -2182,7 +2163,6 @@ function renderVerificationUI(candidates, ranked, markMap, similarRaces) {
     }).join('');
   }
 
-  // 3. 近似した過去レース事例（最大10件）
   var simListEl = $('#similarRacesList');
   if (simListEl) {
     if (similarRaces.length === 0) {
