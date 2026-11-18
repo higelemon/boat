@@ -7,7 +7,8 @@ import lhafile
 import pandas as pd
 import requests
 
-DATA_DIR = '.'  // CSVを保存するディレクトリ（GitHubリポジトリ内）
+# GitHubリポジトリ内のCSV保存先フォルダ名に合わせます（必要に応じて変更してください）
+DATA_DIR = 'demetodadata'
 
 def to_half_width(s):
   """全角英数字・記号を半角に変換"""
@@ -142,11 +143,14 @@ def download_and_parse_lzh(date_str):
   return date_formatted, day_rows, warnings
 
 def update_yearly_data():
+  # 保存先ディレクトリが存在しない場合は自動作成
+  if DATA_DIR and not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR, exist_ok=True)
+
   today = datetime.now()
   current_year = today.year
   csv_filename = os.path.join(DATA_DIR, f'demetodadata_{current_year}.csv')
 
-  # 1. 既存のCSVがあれば読み込み、最新の日付を特定する
   existing_df = pd.DataFrame()
   if os.path.exists(csv_filename):
     try:
@@ -163,12 +167,10 @@ def update_yearly_data():
 
   end_date = today
 
-  # まだ取得すべき新しい日付がない場合は終了
   if start_date > end_date:
     print(f'[-] {current_year}年のデータは既に最新です。')
     return
 
-  # 取得対象の日付リストを作成
   dates = []
   curr = start_date
   while curr <= end_date:
@@ -192,7 +194,6 @@ def update_yearly_data():
 
   new_df = pd.DataFrame(new_rows)
   
-  # 既存データと結合して重複排除・ソート
   if not existing_df.empty:
     combined_df = pd.concat([existing_df, new_df]).drop_duplicates(subset=['日付', 'レース番号'], keep='last')
   else:
