@@ -205,16 +205,9 @@
     }
 
     tr.ad-row td {
-      padding: 10px 4px;
+      padding: 4px;
       border-bottom: 1px solid var(--border);
-    }
-
-    .ad-label {
-      display: block;
-      font-size: 0.65rem;
-      color: #94a3b8;
-      margin-bottom: 4px;
-      text-align: center;
+      line-height: 0;
     }
 
     .ad-frame-wrap {
@@ -228,7 +221,7 @@
     .ad-iframe {
       width: 320px;
       max-width: 100%;
-      height: 100px;
+      height: 50px;
       border: none;
       overflow: hidden;
       display: block;
@@ -428,7 +421,6 @@
     return `
       <tr class="ad-row">
         <td colspan="5">
-          <span class="ad-label">スポンサーリンク</span>
           <div class="ad-frame-wrap">
             <iframe class="ad-iframe" scrolling="no"></iframe>
           </div>
