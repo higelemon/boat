@@ -217,6 +217,23 @@
       text-align: center;
     }
 
+    .ad-frame-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .ad-iframe {
+      width: 320px;
+      max-width: 100%;
+      height: 100px;
+      border: none;
+      overflow: hidden;
+      display: block;
+    }
+
     .rank-badge {
       display: inline-block;
       width: 26px;
@@ -408,12 +425,15 @@
   let showAll = false;
 
   function createAdRowHTML() {
+    const iframeHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;}</style></head><body><script src="${ADMAX_SRC}"><\/script></body></html>`;
+    const escapedSrcdoc = iframeHTML.replace(/"/g, '"');
+
     return `
       <tr class="ad-row">
         <td colspan="5">
           <span class="ad-label">スポンサーリンク</span>
-          <div style="display:flex; justify-content:center; align-items:center; min-height:90px;">
-            <script src="${ADMAX_SRC}"></script>
+          <div class="ad-frame-wrap">
+            <iframe class="ad-iframe" scrolling="no" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation" srcdoc="${escapedSrcdoc}"></iframe>
           </div>
         </td>
       </tr>
