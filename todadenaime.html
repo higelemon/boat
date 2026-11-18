@@ -39,12 +39,6 @@
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
       overflow: hidden;
-      transition: outline 0.2s;
-    }
-
-    .container.dragover {
-      outline: 3px dashed var(--primary);
-      background-color: #f0f7ff;
     }
 
     header {
@@ -72,7 +66,6 @@
       letter-spacing: 0.02em;
     }
 
-    /* ローカル読込パネル */
     .local-loader {
       display: none;
       background: #fffbeb;
@@ -115,11 +108,6 @@
       background: #475569;
     }
 
-    .file-btn:hover {
-      opacity: 0.9;
-    }
-
-    /* コントロールバー */
     .controls {
       display: flex;
       flex-wrap: wrap;
@@ -166,9 +154,9 @@
       border-bottom: 1px solid var(--border);
     }
 
-    /* テーブルスタイル */
     .table-wrapper {
       width: 100%;
+      overflow-x: auto;
     }
 
     table {
@@ -205,10 +193,28 @@
       border-bottom: 1px solid var(--border);
       font-size: 0.9rem;
       vertical-align: middle;
+      word-break: break-all;
     }
 
     tbody tr:nth-child(even) {
       background-color: #fafcfe;
+    }
+
+    tr.ad-row {
+      background-color: #f8fafc !important;
+    }
+
+    tr.ad-row td {
+      padding: 10px 4px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ad-label {
+      display: block;
+      font-size: 0.65rem;
+      color: #94a3b8;
+      margin-bottom: 4px;
+      text-align: center;
     }
 
     .rank-badge {
@@ -226,7 +232,6 @@
     .rank-2 { background: #e0e0e0; color: #333333; }
     .rank-3 { background: #cd7f32; color: #ffffff; }
 
-    /* ボートレース艇番カラー（5号艇：黄色） */
     .deme-box {
       display: inline-flex;
       align-items: center;
@@ -310,90 +315,16 @@
       border-top: 1px solid var(--border);
     }
 
-    /* スマホ画面最適化（幅600px以下） */
     @media (max-width: 600px) {
-      body {
-        padding: 4px;
-      }
-
-      header {
-        padding: 14px 8px;
-      }
-
-      header h1 {
-        font-size: 1.05rem;
-      }
-
-      .latest-date-badge {
-        font-size: 0.75rem;
-        padding: 3px 10px;
-      }
-
-      .controls {
-        padding: 8px 10px;
-      }
-
-      select, button.tab-btn {
-        padding: 5px 8px;
-        font-size: 0.78rem;
-      }
-
-      .status-bar {
-        padding: 6px 10px;
-        font-size: 0.72rem;
-      }
-
-      th {
-        font-size: 0.68rem;
-        padding: 7px 2px;
-      }
-
-      .th-sub {
-        font-size: 0.63rem;
-      }
-
-      td {
-        padding: 8px 2px;
-        font-size: 0.82rem;
-      }
-
-      .rank-badge {
-        width: 22px;
-        height: 22px;
-        line-height: 22px;
-        font-size: 0.74rem;
-      }
-
-      .deme-box {
-        gap: 1px;
-      }
-
-      .boat {
-        width: 18px;
-        height: 18px;
-        line-height: 16px;
-        font-size: 0.74rem;
-        border-radius: 3px;
-      }
-
-      .days-cell {
-        font-size: 0.85rem;
-      }
-
-      .interval-count {
-        font-size: 0.7rem;
-      }
-
-      .recent3-sub {
-        font-size: 0.66rem;
-        padding: 1px 4px;
-        letter-spacing: -0.02em;
-      }
-
-      .sub-info {
-        font-size: 0.64rem;
-        letter-spacing: -0.02em;
-      }
+      body { padding: 4px; }
+      header { padding: 14px 8px; }
+      header h1 { font-size: 1.05rem; }
+      .controls { padding: 8px 10px; }
+      select, button.tab-btn { padding: 5px 8px; font-size: 0.78rem; }
+      th { font-size: 0.68rem; padding: 7px 2px; }
+      td { padding: 8px 2px; font-size: 0.82rem; }
+      .rank-badge { width: 22px; height: 22px; line-height: 22px; font-size: 0.74rem; }
+      .boat { width: 18px; height: 18px; line-height: 16px; font-size: 0.74rem; border-radius: 3px; }
     }
   </style>
 </head>
@@ -405,9 +336,8 @@
     <div id="latestDateBadge" class="latest-date-badge">データ読み込み中...</div>
   </header>
 
-  <!-- ローカル環境で開いた場合のみ表示される手動読込バー -->
   <div id="localLoader" class="local-loader">
-    <p>ローカル環境のため、下のボタンから「demetodadata」フォルダ（またはCSVファイル）を選択してください（画面へのドラッグ＆ドロップも可）</p>
+    <p>ローカル環境のため、下のボタンから「demetodadata」フォルダを選択してください</p>
     <div class="btn-upload-group">
       <label class="file-btn">
         📁 demetodadataフォルダを選択
@@ -463,7 +393,7 @@
   </div>
 
   <footer>
-    ※「出ていない日数」「出現平均」「直近3回」は非開催日を除いた<strong>実際の開催日数のみ</strong>でカウントしています（同日出現は間隔0日 / 直近3回は新しい順）。
+    ※「出ていない日数」などは実際の開催日数のみでカウントしています。
   </footer>
 </div>
 
@@ -472,9 +402,23 @@
   const FILE_PREFIX = 'demetodadata_';
   const START_YEAR = 2017;
   const END_YEAR = new Date().getFullYear() + 1;
+  const ADMAX_SRC = 'https://adm.shinobi.jp/s/79c2e8f757d4b3574447b2c9d208d061';
 
   let rankingList = [];
   let showAll = false;
+
+  function createAdRowHTML() {
+    return `
+      <tr class="ad-row">
+        <td colspan="5">
+          <span class="ad-label">スポンサーリンク</span>
+          <div style="display:flex; justify-content:center; align-items:center; min-height:90px;">
+            <script src="${ADMAX_SRC}"><\/script>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
 
   function generateAll120Combinations() {
     const list = [];
@@ -525,19 +469,36 @@
     const lines = cleanText.split(/\r?\n/);
     if (lines.length < 2) return [];
 
+    const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+    let idxDate = headers.indexOf('日付');
+    let idxRace = headers.indexOf('レース番号');
+    let idxB1 = headers.indexOf('1着');
+    let idxB2 = headers.indexOf('2着');
+    let idxB3 = headers.indexOf('3着');
+    let idxPay = headers.indexOf('配当');
+
+    if (idxDate === -1) idxDate = 0;
+    if (idxRace === -1) idxRace = 1;
+    if (idxB1 === -1) idxB1 = headers.length >= 15 ? 11 : 2;
+    if (idxB2 === -1) idxB2 = headers.length >= 15 ? 12 : 3;
+    if (idxB3 === -1) idxB3 = headers.length >= 15 ? 13 : 4;
+    if (idxPay === -1) idxPay = headers.length >= 15 ? 14 : 5;
+
+    const minCols = Math.max(idxDate, idxRace, idxB1, idxB2, idxB3, idxPay) + 1;
+
     const records = [];
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
       const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').trim());
-      if (cols.length < 6) continue;
+      if (cols.length < minCols) continue;
 
-      const dateStr = cols[0];
-      const raceNo = parseInt(cols[1], 10) || 0;
-      const b1 = cols[2];
-      const b2 = cols[3];
-      const b3 = cols[4];
-      const payout = parseInt(cols[5], 10);
+      const dateStr = cols[idxDate];
+      const raceNo = parseInt(cols[idxRace], 10) || 0;
+      const b1 = cols[idxB1];
+      const b2 = cols[idxB2];
+      const b3 = cols[idxB3];
+      const payout = parseInt(cols[idxPay], 10);
 
       const dateObj = parseLocalDate(dateStr);
       if (!dateObj || !b1 || !b2 || !b3 || isNaN(payout)) continue;
@@ -570,7 +531,8 @@
       return;
     }
 
-    tbody.innerHTML = displayList.map((item, idx) => {
+    const htmlRows = [];
+    displayList.forEach((item, idx) => {
       const rank = idx + 1;
       const rankClass = rank <= 3 ? `rank-${rank}` : '';
       const lastSeenNote = item.lastSeenStr
@@ -593,7 +555,7 @@
         ? `<span class="sub-info">最高: ${item.maxPayout.toLocaleString()}円</span>`
         : '';
 
-      return `
+      htmlRows.push(`
         <tr>
           <td><span class="rank-badge ${rankClass}">${rank}</span></td>
           <td>${formatDemeHTML(item.comb)}</td>
@@ -601,8 +563,14 @@
           <td>${intervalCellHTML}</td>
           <td class="payout-cell">${item.avgPayoutLabel}${maxPayoutNote}</td>
         </tr>
-      `;
-    }).join('');
+      `);
+
+      if (rank % 10 === 0) {
+        htmlRows.push(createAdRowHTML());
+      }
+    });
+
+    tbody.innerHTML = htmlRows.join('');
   }
 
   function processAndRender(validFiles) {
