@@ -425,15 +425,12 @@
   let showAll = false;
 
   function createAdRowHTML() {
-    const iframeHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;}</style></head><body><script src="${ADMAX_SRC}"><\/script></body></html>`;
-    const escapedSrcdoc = iframeHTML.replace(/"/g, '"');
-
     return `
       <tr class="ad-row">
         <td colspan="5">
           <span class="ad-label">スポンサーリンク</span>
           <div class="ad-frame-wrap">
-            <iframe class="ad-iframe" scrolling="no" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation" srcdoc="${escapedSrcdoc}"></iframe>
+            <iframe class="ad-iframe" scrolling="no"></iframe>
           </div>
         </td>
       </tr>
@@ -591,6 +588,14 @@
     });
 
     tbody.innerHTML = htmlRows.join('');
+
+    const adIframes = tbody.querySelectorAll('iframe.ad-iframe');
+    adIframes.forEach(iframe => {
+      const doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;"><script src="' + ADMAX_SRC + '"><\/script></body></html>');
+      doc.close();
+    });
   }
 
   function processAndRender(validFiles) {
