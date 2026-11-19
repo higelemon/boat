@@ -181,7 +181,7 @@ def update_yearly_data():
   new_rows = []
   with ThreadPoolExecutor(max_workers=4) as executor:
     futures = {executor.submit(download_and_parse_lzh, d): d for d in dates}
-    for future in as_complex:= as_completed(futures): # type: ignore
+    for future in as_completed(futures):
       date_fmt, day_rows, _ = future.result()
       if day_rows:
         new_rows.extend(day_rows)
