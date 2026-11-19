@@ -1,6 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import csv
 import os
+import re
 import time
 from bs4 import BeautifulSoup
 import requests
@@ -106,6 +107,22 @@ def search_new_racers(session, base_payload, start_toban, gender_code="SELECTALL
     return racer_dict
 
 
+def extract_furigana(soup):
+    kana_el = soup.select_one("p.racer1_bodyKana, .racer1_bodyKana, p[class*='Kana'], span[class*='Kana']")
+    if kana_el:
+        return " ".join(kana_el.get_text().split())
+
+    name_el = soup.select_one("p.racer1_bodyName, .racer1_bodyName")
+    if name_el:
+        for sib in [name_el.find_previous_sibling(), name_el.find_next_sibling()]:
+            if sib:
+                txt = " ".join(sib.get_text().split())
+                if txt and re.fullmatch(r"[ァ-ヶー・\s]+", txt):
+                    return txt
+
+    return ""
+
+
 def fetch_profile_detail(toban, name, gender):
     url = f"{PROFILE_URL}?toban={toban}"
     for _ in range(3):
@@ -114,6 +131,8 @@ def fetch_profile_detail(toban, name, gender):
             res.raise_for_status()
             res.encoding = "utf-8"
             soup = BeautifulSoup(res.text, "html.parser")
+
+            furigana = extract_furigana(soup)
 
             info = {}
             for dt in soup.find_all(["dt", "th"]):
@@ -125,11 +144,11 @@ def fetch_profile_detail(toban, name, gender):
             term = info.get("登録期", "")
             branch = info.get("支部", "")
             birthplace = info.get("出身地", "")
-            return [toban, name, term, branch, birthplace, gender]
+            return [toban, name, furigana, term, branch, birthplace, gender]
         except Exception:
             time.sleep(0.5)
 
-    return [toban, name, "", "", "", gender]
+    return [toban, name, "", "", "", "", gender]
 
 
 def main():
@@ -141,13 +160,11 @@ def main():
     session = requests.Session()
     base_payload = get_base_payload(session)
 
-    # まず全新人選手を検索（該当ゼロならここで即終了）
     new_all = search_new_racers(session, base_payload, search_start, gender_code="SELECTALL")
     if not new_all:
         print("[-] 新規登録された選手は見つかりませんでした。")
         return
 
-    # 新人が見つかった場合のみ、女子の新人を絞り込み検索して性別を判定
     new_females = set(search_new_racers(session, base_payload, search_start, gender_code="2").keys())
     sorted_basics = sorted(new_all.items(), key=lambda x: int(x[0]))
     print(f"[+] {len(sorted_basics)} 名の新規選手が見つかりました（うち女子 {len(new_females)} 名）。詳細を取得します...")
@@ -177,7 +194,7 @@ def main():
     os.makedirs(os.path.dirname(CSV_FILE), exist_ok=True)
     with open(CSV_FILE, mode="w", encoding="utf-8-sig", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["登録番号", "レーサー名", "登録期", "支部", "出身地", "性別"])
+        writer.writerow(["登録番号", "レーサー名", "フリガナ", "登録期", "支部", "出身地", "性別"])
         writer.writerows(sorted_rows)
 
     print(f"[★] 完了！ {CSV_FILE} を更新しました（総選手数: {len(sorted_rows)} 名）")
