@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import io
 import os
 import re
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
 import lhafile
 import pandas as pd
 import requests
@@ -10,7 +10,6 @@ import requests
 DATA_DIR = 'demetodadata'
 
 def to_half_width(s):
-  """全角英数字・記号を半角に変換"""
   return s.translate(
       str.maketrans(
           '０１２３４５６７８９．－ＦＬＳＫ',
@@ -25,22 +24,29 @@ def download_and_parse_lzh(date_str):
   date_formatted = f'{date_str[:4]}-{mm}-{dd}'
 
   url = f'https://www1.mbrace.or.jp/od2/K/{date_str[:6]}/k{yy}{mm}{dd}.lzh'
-  headers = {'User-Agent': 'Mozilla/5.0'}
+  
+  # 一般的なPCのChromeブラウザを完全に模倣したヘッダ
+  headers = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+      'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
+      'Referer': 'https://www1.mbrace.or.jp/od2/K/dindex.html',
+      'Connection': 'keep-alive',
+  }
 
   res = None
   for attempt in range(2):
     try:
-      r = requests.get(url, headers=headers, timeout=12)
+      r = requests.get(url, headers=headers, timeout=15)
       print(f"[{date_formatted}] アクセス: {url} (ステータス: {r.status_code}, サイズ: {len(r.content)})")
       if r.status_code == 200 and len(r.content) > 100:
         res = r
         break
       elif r.status_code == 404:
-        print(f"[{date_formatted}] 404: ファイルが存在しません（非開催日または未公開）")
         return date_formatted, [], []
     except Exception as e:
-      print(f"[{date_formatted}] 通信エラー (試行 {attempt+1}): {e}")
-      continue
+      print(f"[{date_formatted}] 通信エラー: {e}")
+    time.sleep(1)
 
   if res is None:
     return date_formatted, [], [f'{date_formatted}: LZHダウンロード失敗']
@@ -50,19 +56,16 @@ def download_and_parse_lzh(date_str):
     txt_name = lzh.namelist()[0]
     text = lzh.read(txt_name).decode('cp932', errors='ignore')
   except Exception as e:
-    print(f"[{date_formatted}] LZH解凍エラー: {e}")
     return date_formatted, [], [f'{date_formatted}: LZH解凍エラー ({e})']
 
   m_toda = re.search(r'02KBGN(.*?)02KEND', text, re.DOTALL)
   if not m_toda:
-    print(f"[{date_formatted}] 戸田(02場)のセクションが見つかりませんでした")
     return date_formatted, [], []
 
   toda_text = m_toda.group(1)
   lines = toda_text.splitlines()
 
   day_rows = []
-  warnings = []
   curr_rno = None
   weather, wind_dir, wind_speed = '晴', '無風', 0.0
   course_st = [None] * 6
@@ -144,7 +147,7 @@ def download_and_parse_lzh(date_str):
 
   flush_race()
   print(f"[{date_formatted}] 抽出完了: {len(day_rows)} レース")
-  return date_formatted, day_rows, warnings
+  return date_formatted, day_rows, []
 
 def update_yearly_data():
   if DATA_DIR and not os.path.exists(DATA_DIR):
@@ -179,13 +182,13 @@ def update_yearly_data():
   print(f'[*] {current_year}年のデータ確認中（{start_date.strftime("%Y-%m-%d")} ～ {end_date.strftime("%Y-%m-%d")} / 全 {len(dates)} 日）...')
 
   new_rows = []
-  with ThreadPoolExecutor(max_workers=4) as executor:
-    futures = {executor.submit(download_and_parse_lzh, d): d for d in dates}
-    for future in as_completed(futures):
-      date_fmt, day_rows, _ = future.result()
-      if day_rows:
-        new_rows.extend(day_rows)
-        print(f'[+] データ採用: {date_fmt} ({len(day_rows)}レース)')
+  # 同時接続によるブロックを避けるため直列で1秒間隔を空けて取得
+  for d in dates:
+    date_fmt, day_rows, _ = download_and_parse_lzh(d)
+    if day_rows:
+      new_rows.extend(day_rows)
+      print(f'[+] データ採用: {date_fmt} ({len(day_rows)}レース)')
+    time.sleep(0.8)
 
   if not new_rows:
     print('[-] 新規に取得できるデータはありませんでした。')
