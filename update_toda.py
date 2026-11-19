@@ -7,7 +7,6 @@ import lhafile
 import pandas as pd
 import requests
 
-# GitHubリポジトリ内のCSV保存先フォルダ名に合わせます（必要に応じて変更してください）
 DATA_DIR = 'demetodadata'
 
 def to_half_width(s):
@@ -20,7 +19,6 @@ def to_half_width(s):
   )
 
 def download_and_parse_lzh(date_str):
-  """mbraceの公式結果アーカイブ(kYYMMDD.lzh)を取得・解凍し、戸田(02場)の全レースを漏れなく抽出"""
   yy = date_str[2:4]
   mm = date_str[4:6]
   dd = date_str[6:8]
@@ -30,15 +28,18 @@ def download_and_parse_lzh(date_str):
   headers = {'User-Agent': 'Mozilla/5.0'}
 
   res = None
-  for _ in range(2):
+  for attempt in range(2):
     try:
       r = requests.get(url, headers=headers, timeout=12)
+      print(f"[{date_formatted}] アクセス: {url} (ステータス: {r.status_code}, サイズ: {len(r.content)})")
       if r.status_code == 200 and len(r.content) > 100:
         res = r
         break
       elif r.status_code == 404:
+        print(f"[{date_formatted}] 404: ファイルが存在しません（非開催日または未公開）")
         return date_formatted, [], []
-    except Exception:
+    except Exception as e:
+      print(f"[{date_formatted}] 通信エラー (試行 {attempt+1}): {e}")
       continue
 
   if res is None:
@@ -49,10 +50,12 @@ def download_and_parse_lzh(date_str):
     txt_name = lzh.namelist()[0]
     text = lzh.read(txt_name).decode('cp932', errors='ignore')
   except Exception as e:
+    print(f"[{date_formatted}] LZH解凍エラー: {e}")
     return date_formatted, [], [f'{date_formatted}: LZH解凍エラー ({e})']
 
   m_toda = re.search(r'02KBGN(.*?)02KEND', text, re.DOTALL)
   if not m_toda:
+    print(f"[{date_formatted}] 戸田(02場)のセクションが見つかりませんでした")
     return date_formatted, [], []
 
   toda_text = m_toda.group(1)
@@ -140,15 +143,15 @@ def download_and_parse_lzh(date_str):
         payout = int(m_pay.group(1))
 
   flush_race()
+  print(f"[{date_formatted}] 抽出完了: {len(day_rows)} レース")
   return date_formatted, day_rows, warnings
 
 def update_yearly_data():
-  # 保存先ディレクトリが存在しない場合は自動作成
   if DATA_DIR and not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR, exist_ok=True)
 
-  today = datetime.now()
-  current_year = today.year
+  now_jst = datetime.utcnow() + timedelta(hours=9)
+  current_year = now_jst.year
   csv_filename = os.path.join(DATA_DIR, f'demetodadata_{current_year}.csv')
 
   existing_df = pd.DataFrame()
@@ -157,7 +160,7 @@ def update_yearly_data():
       existing_df = pd.read_csv(csv_filename, encoding='utf-8-sig')
       if not existing_df.empty and '日付' in existing_df.columns:
         latest_date_str = existing_df['日付'].max()
-        start_date = datetime.strptime(latest_date_str, '%Y-%m-%d') + timedelta(days=1)
+        start_date = datetime.strptime(latest_date_str, '%Y-%m-%d') - timedelta(days=3)
       else:
         start_date = datetime(current_year, 1, 1)
     except Exception:
@@ -165,11 +168,7 @@ def update_yearly_data():
   else:
     start_date = datetime(current_year, 1, 1)
 
-  end_date = today
-
-  if start_date > end_date:
-    print(f'[-] {current_year}年のデータは既に最新です。')
-    return
+  end_date = now_jst
 
   dates = []
   curr = start_date
@@ -177,16 +176,16 @@ def update_yearly_data():
     dates.append(curr.strftime('%Y%m%d'))
     curr += timedelta(days=1)
 
-  print(f'[*] {current_year}年の差分データ取得中（{start_date.strftime("%Y-%m-%d")} ～ {end_date.strftime("%Y-%m-%d")} / 全 {len(dates)} 日）...')
+  print(f'[*] {current_year}年のデータ確認中（{start_date.strftime("%Y-%m-%d")} ～ {end_date.strftime("%Y-%m-%d")} / 全 {len(dates)} 日）...')
 
   new_rows = []
   with ThreadPoolExecutor(max_workers=4) as executor:
     futures = {executor.submit(download_and_parse_lzh, d): d for d in dates}
-    for future in as_completed(futures):
+    for future in as_complex:= as_completed(futures): # type: ignore
       date_fmt, day_rows, _ = future.result()
       if day_rows:
         new_rows.extend(day_rows)
-        print(f'[+] 差分取得成功: {date_fmt} ({len(day_rows)}レース)')
+        print(f'[+] データ採用: {date_fmt} ({len(day_rows)}レース)')
 
   if not new_rows:
     print('[-] 新規に取得できるデータはありませんでした。')
