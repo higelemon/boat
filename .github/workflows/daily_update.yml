@@ -25,19 +25,23 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests pandas lhafile
+          pip install requests pandas lhafile beautifulsoup4
 
-      - name: Run update script
+      - name: Run race data update script
         run: |
           python update_toda.py
+
+      - name: Run racer data update script
+        run: |
+          python update_racer.py
 
       - name: Commit and push updated CSV
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add demetodadata/
+          git add demetodadata/ racer/
           if ! git diff --staged --quiet; then
-            git commit -m "Auto update boatrace toda CSV ($(date +'%Y-%m-%d'))"
+            git commit -m "Auto update boatrace CSV ($(date +'%Y-%m-%d'))"
             git push
           else
             echo "No changes to commit."
