@@ -57,5 +57,6 @@ jobs:
             echo "変更がないためスキップします"
           else
             git commit -m "Update Toda race data"
+            git pull --rebase -X theirs
             git push
           fi
