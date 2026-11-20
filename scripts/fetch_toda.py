@@ -112,11 +112,11 @@ def parse_racelist(hd: str, rno: int) -> dict | None:
                 return [s.strip() for s in tds[td_idx].stripped_strings]
             return []
 
-        fl_st = get_lines(3)       # 例: ['F0', 'L0', '0.15']
-        nat_stats = get_lines(4)   # 例: ['6.54', '48.20', '65.10']
-        loc_stats = get_lines(5)   # 例: ['6.12', '42.00', '58.00']
-        motor_stats = get_lines(6) # 例: ['32', '38.50', '55.20']
-        boat_stats = get_lines(7)  # 例: ['15', '35.10', '50.00']
+        fl_st = get_lines(3)        # 例: ['F0', 'L0', '0.15']
+        nat_stats = get_lines(4)    # 例: ['6.54', '48.20', '65.10']
+        loc_stats = get_lines(5)    # 例: ['6.12', '42.00', '58.00']
+        motor_stats = get_lines(6)  # 例: ['32', '38.50', '55.20']
+        boat_stats = get_lines(7)   # 例: ['15', '35.10', '50.00']
 
         # 今節成績（進入コース行: 2行目、着順行: 4行目）から節間着順と外枠3着以内を抽出
         series_ranks = []
@@ -176,6 +176,8 @@ def merge_beforeinfo(hd: str, race_data: dict) -> dict:
     # 展示タイム・チルト角度・部品交換の取得
     tbodies = soup.select("tbody.is-fs12")
     for idx, tbody in enumerate(tbodies[:6]):
+        if idx >= len(race_data["racers"]):
+            break
         tds = tbody.select("tr:first-child td")
         # 展示タイム (td[4])
         if len(tds) > 4:
