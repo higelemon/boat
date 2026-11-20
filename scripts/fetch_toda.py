@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import re
@@ -352,8 +354,13 @@ def fetch_single_day(hd: str, skip_existing: bool = False) -> bool:
 
 def build_date_list(start_str: str, end_str: str) -> list[str]:
     """開始日〜終了日（YYYYMMDD）の日付リストを生成する（最大31日間ガード付き）"""
-    start_dt = datetime.strptime(start_str, "%Y%m%d")
-    end_dt = datetime.strptime(end_str, "%Y%m%d")
+    try:
+        start_dt = datetime.strptime(start_str, "%Y%m%d")
+        end_dt = datetime.strptime(end_str, "%Y%m%d")
+    except ValueError as e:
+        print(f"[ERROR] 日付の形式が不正です ({start_str} 〜 {end_str}): {e}")
+        return []
+
     if start_dt > end_dt:
         start_dt, end_dt = end_dt, start_dt
 
@@ -381,11 +388,15 @@ def main():
         dates = build_date_list(arg1, arg2)
         is_bulk = True
     elif arg1:
-        dates = [arg1]
+        dates = build_date_list(arg1, arg1)
         is_bulk = False
     else:
         dates = [today_hd]
         is_bulk = False
+
+    if not dates:
+        print("[ERROR] 有効な対象日がないため処理を終了します。")
+        return
 
     print(f"対象日数: {len(dates)}日 ({dates[0]} 〜 {dates[-1]}) / skip_existing={skip_existing}")
 
