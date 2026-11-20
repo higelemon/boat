@@ -1,6 +1,6 @@
 {
   "date": "20261118",
-  "updatedAt": "2026-11-20T15:35:15.768046+09:00",
+  "updatedAt": "2026-11-20T17:26:26.504348+09:00",
   "venue": "戸田",
   "jcd": "02",
   "races": {
@@ -20,7 +20,12 @@
           "motorNo": "47",
           "motor2Rate": 30.43,
           "boat2Rate": 31.15,
-          "exhibitionTime": 6.85
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.85,
+          "tilt": -0.5,
+          "exhibitionST": 0.14,
+          "partsChanged": []
         },
         {
           "boat": 2,
@@ -35,7 +40,12 @@
           "motorNo": "3",
           "motor2Rate": 41.33,
           "boat2Rate": 30.65,
-          "exhibitionTime": 6.9
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.9,
+          "tilt": -0.5,
+          "exhibitionST": 0.09,
+          "partsChanged": []
         },
         {
           "boat": 3,
@@ -50,7 +60,12 @@
           "motorNo": "43",
           "motor2Rate": 40.0,
           "boat2Rate": 34.92,
-          "exhibitionTime": 6.87
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.87,
+          "tilt": 0.0,
+          "exhibitionST": 0.03,
+          "partsChanged": []
         },
         {
           "boat": 4,
@@ -65,7 +80,12 @@
           "motorNo": "4",
           "motor2Rate": 49.3,
           "boat2Rate": 35.48,
-          "exhibitionTime": 6.82
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.82,
+          "tilt": -0.5,
+          "exhibitionST": 0.05,
+          "partsChanged": []
         },
         {
           "boat": 5,
@@ -80,7 +100,12 @@
           "motorNo": "60",
           "motor2Rate": 35.53,
           "boat2Rate": 30.16,
-          "exhibitionTime": 6.97
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.97,
+          "tilt": 0.0,
+          "exhibitionST": 0.05,
+          "partsChanged": []
         },
         {
           "boat": 6,
@@ -95,7 +120,12 @@
           "motorNo": "57",
           "motor2Rate": 52.24,
           "boat2Rate": 36.51,
-          "exhibitionTime": 6.87
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.87,
+          "tilt": 0.0,
+          "exhibitionST": 0.18,
+          "partsChanged": []
         }
       ],
       "weather": {
@@ -133,7 +163,12 @@
           "motorNo": "65",
           "motor2Rate": 35.09,
           "boat2Rate": 31.82,
-          "exhibitionTime": 6.86
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.86,
+          "tilt": 0.0,
+          "exhibitionST": 0.03,
+          "partsChanged": []
         },
         {
           "boat": 2,
@@ -148,7 +183,12 @@
           "motorNo": "21",
           "motor2Rate": 43.94,
           "boat2Rate": 30.51,
-          "exhibitionTime": 6.91
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.91,
+          "tilt": 0.0,
+          "exhibitionST": -0.11,
+          "partsChanged": []
         },
         {
           "boat": 3,
@@ -163,7 +203,12 @@
           "motorNo": "51",
           "motor2Rate": 33.33,
           "boat2Rate": 31.75,
-          "exhibitionTime": 6.83
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.83,
+          "tilt": -0.5,
+          "exhibitionST": 0.01,
+          "partsChanged": []
         },
         {
           "boat": 4,
@@ -178,7 +223,12 @@
           "motorNo": "24",
           "motor2Rate": 29.69,
           "boat2Rate": 28.81,
-          "exhibitionTime": 6.86
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.86,
+          "tilt": -0.5,
+          "exhibitionST": 0.08,
+          "partsChanged": []
         },
         {
           "boat": 5,
@@ -193,7 +243,12 @@
           "motorNo": "44",
           "motor2Rate": 32.81,
           "boat2Rate": 35.48,
-          "exhibitionTime": 6.88
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.88,
+          "tilt": 0.0,
+          "exhibitionST": -0.13,
+          "partsChanged": []
         },
         {
           "boat": 6,
@@ -208,7 +263,12 @@
           "motorNo": "50",
           "motor2Rate": 44.44,
           "boat2Rate": 32.84,
-          "exhibitionTime": 6.92
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.92,
+          "tilt": 0.0,
+          "exhibitionST": -0.14,
+          "partsChanged": []
         }
       ],
       "weather": {
@@ -246,7 +306,12 @@
           "motorNo": "48",
           "motor2Rate": 50.0,
           "boat2Rate": 28.57,
-          "exhibitionTime": 6.9
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.9,
+          "tilt": -0.5,
+          "exhibitionST": 0.08,
+          "partsChanged": []
         },
         {
           "boat": 2,
@@ -261,7 +326,12 @@
           "motorNo": "58",
           "motor2Rate": 40.0,
           "boat2Rate": 28.13,
-          "exhibitionTime": 6.79
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.79,
+          "tilt": -0.5,
+          "exhibitionST": 0.32,
+          "partsChanged": []
         },
         {
           "boat": 3,
@@ -276,7 +346,12 @@
           "motorNo": "17",
           "motor2Rate": 31.94,
           "boat2Rate": 31.25,
-          "exhibitionTime": 6.86
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.86,
+          "tilt": 0.0,
+          "exhibitionST": -0.02,
+          "partsChanged": []
         },
         {
           "boat": 4,
@@ -291,7 +366,12 @@
           "motorNo": "53",
           "motor2Rate": 37.7,
           "boat2Rate": 42.86,
-          "exhibitionTime": 6.95
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.95,
+          "tilt": 0.0,
+          "exhibitionST": 0.05,
+          "partsChanged": []
         },
         {
           "boat": 5,
@@ -306,7 +386,12 @@
           "motorNo": "56",
           "motor2Rate": 38.33,
           "boat2Rate": 34.92,
-          "exhibitionTime": 6.91
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.91,
+          "tilt": -0.5,
+          "exhibitionST": 0.17,
+          "partsChanged": []
         },
         {
           "boat": 6,
@@ -321,7 +406,14 @@
           "motorNo": "8",
           "motor2Rate": 32.43,
           "boat2Rate": 31.15,
-          "exhibitionTime": 6.89
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.89,
+          "tilt": 0.0,
+          "exhibitionST": 0.17,
+          "partsChanged": [
+            "シャフト"
+          ]
         }
       ],
       "weather": {
@@ -359,7 +451,12 @@
           "motorNo": "20",
           "motor2Rate": 30.16,
           "boat2Rate": 30.0,
-          "exhibitionTime": 6.87
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.87,
+          "tilt": -0.5,
+          "exhibitionST": 0.22,
+          "partsChanged": []
         },
         {
           "boat": 2,
@@ -374,7 +471,12 @@
           "motorNo": "27",
           "motor2Rate": 34.29,
           "boat2Rate": 39.39,
-          "exhibitionTime": 6.93
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.93,
+          "tilt": -0.5,
+          "exhibitionST": 0.18,
+          "partsChanged": []
         },
         {
           "boat": 3,
@@ -389,7 +491,14 @@
           "motorNo": "6",
           "motor2Rate": 31.03,
           "boat2Rate": 32.86,
-          "exhibitionTime": 6.78
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.78,
+          "tilt": 0.0,
+          "exhibitionST": 0.07,
+          "partsChanged": [
+            "リング×４"
+          ]
         },
         {
           "boat": 4,
@@ -404,7 +513,17 @@
           "motorNo": "49",
           "motor2Rate": 29.51,
           "boat2Rate": 44.26,
-          "exhibitionTime": 6.85
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.85,
+          "tilt": -0.5,
+          "exhibitionST": 0.05,
+          "partsChanged": [
+            "ピストン×２",
+            "リング×４",
+            "キャブ",
+            "シリンダ"
+          ]
         },
         {
           "boat": 5,
@@ -419,7 +538,12 @@
           "motorNo": "11",
           "motor2Rate": 35.38,
           "boat2Rate": 35.94,
-          "exhibitionTime": 6.88
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.88,
+          "tilt": 0.0,
+          "exhibitionST": -0.01,
+          "partsChanged": []
         },
         {
           "boat": 6,
@@ -434,7 +558,12 @@
           "motorNo": "36",
           "motor2Rate": 35.21,
           "boat2Rate": 28.81,
-          "exhibitionTime": 6.96
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.96,
+          "tilt": 0.0,
+          "exhibitionST": 0.21,
+          "partsChanged": []
         }
       ],
       "weather": {
@@ -472,7 +601,12 @@
           "motorNo": "32",
           "motor2Rate": 44.29,
           "boat2Rate": 46.3,
-          "exhibitionTime": 6.89
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.89,
+          "tilt": -0.5,
+          "exhibitionST": 0.22,
+          "partsChanged": []
         },
         {
           "boat": 2,
@@ -487,7 +621,14 @@
           "motorNo": "60",
           "motor2Rate": 35.53,
           "boat2Rate": 30.16,
-          "exhibitionTime": 6.86
+          "seriesRanks": [
+            5
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.86,
+          "tilt": 0.0,
+          "exhibitionST": 0.29,
+          "partsChanged": []
         },
         {
           "boat": 3,
@@ -502,7 +643,12 @@
           "motorNo": "14",
           "motor2Rate": 54.93,
           "boat2Rate": 38.89,
-          "exhibitionTime": 6.77
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.77,
+          "tilt": -0.5,
+          "exhibitionST": 0.37,
+          "partsChanged": []
         },
         {
           "boat": 4,
@@ -517,7 +663,12 @@
           "motorNo": "29",
           "motor2Rate": 32.39,
           "boat2Rate": 50.0,
-          "exhibitionTime": 6.82
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.82,
+          "tilt": -0.5,
+          "exhibitionST": 0.12,
+          "partsChanged": []
         },
         {
           "boat": 5,
@@ -532,7 +683,12 @@
           "motorNo": "13",
           "motor2Rate": 30.56,
           "boat2Rate": 44.62,
-          "exhibitionTime": 6.86
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.86,
+          "tilt": -0.5,
+          "exhibitionST": 0.19,
+          "partsChanged": []
         },
         {
           "boat": 6,
@@ -547,7 +703,12 @@
           "motorNo": "10",
           "motor2Rate": 33.33,
           "boat2Rate": 51.72,
-          "exhibitionTime": 6.89
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.89,
+          "tilt": 0.0,
+          "exhibitionST": 0.23,
+          "partsChanged": []
         }
       ],
       "weather": {
@@ -585,7 +746,12 @@
           "motorNo": "9",
           "motor2Rate": 29.58,
           "boat2Rate": 35.82,
-          "exhibitionTime": 6.78
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.78,
+          "tilt": -0.5,
+          "exhibitionST": 0.35,
+          "partsChanged": []
         },
         {
           "boat": 2,
@@ -600,7 +766,14 @@
           "motorNo": "4",
           "motor2Rate": 49.3,
           "boat2Rate": 35.48,
-          "exhibitionTime": 6.81
+          "seriesRanks": [
+            4
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.81,
+          "tilt": -0.5,
+          "exhibitionST": 0.24,
+          "partsChanged": []
         },
         {
           "boat": 3,
@@ -615,7 +788,12 @@
           "motorNo": "26",
           "motor2Rate": 36.23,
           "boat2Rate": 29.69,
-          "exhibitionTime": 6.87
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.87,
+          "tilt": 0.0,
+          "exhibitionST": 0.26,
+          "partsChanged": []
         },
         {
           "boat": 4,
@@ -630,7 +808,12 @@
           "motorNo": "42",
           "motor2Rate": 34.92,
           "boat2Rate": 32.31,
-          "exhibitionTime": 6.81
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.81,
+          "tilt": -0.5,
+          "exhibitionST": 0.17,
+          "partsChanged": []
         },
         {
           "boat": 5,
@@ -645,7 +828,12 @@
           "motorNo": "12",
           "motor2Rate": 28.0,
           "boat2Rate": 31.34,
-          "exhibitionTime": 6.83
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.83,
+          "tilt": 0.0,
+          "exhibitionST": 0.18,
+          "partsChanged": []
         },
         {
           "boat": 6,
@@ -660,7 +848,12 @@
           "motorNo": "45",
           "motor2Rate": 52.46,
           "boat2Rate": 40.32,
-          "exhibitionTime": 6.87
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.87,
+          "tilt": -0.5,
+          "exhibitionST": 0.31,
+          "partsChanged": []
         }
       ],
       "weather": {
@@ -698,7 +891,12 @@
           "motorNo": "16",
           "motor2Rate": 33.33,
           "boat2Rate": 38.71,
-          "exhibitionTime": 6.88
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.88,
+          "tilt": -0.5,
+          "exhibitionST": -0.07,
+          "partsChanged": []
         },
         {
           "boat": 2,
@@ -713,7 +911,14 @@
           "motorNo": "53",
           "motor2Rate": 37.7,
           "boat2Rate": 42.86,
-          "exhibitionTime": 6.88
+          "seriesRanks": [
+            5
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.88,
+          "tilt": 0.0,
+          "exhibitionST": 0.14,
+          "partsChanged": []
         },
         {
           "boat": 3,
@@ -728,7 +933,12 @@
           "motorNo": "15",
           "motor2Rate": 46.05,
           "boat2Rate": 33.9,
-          "exhibitionTime": 6.86
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.86,
+          "tilt": 0.0,
+          "exhibitionST": 0.01,
+          "partsChanged": []
         },
         {
           "boat": 4,
@@ -743,7 +953,12 @@
           "motorNo": "30",
           "motor2Rate": 29.58,
           "boat2Rate": 29.31,
-          "exhibitionTime": 6.88
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.88,
+          "tilt": 0.0,
+          "exhibitionST": -0.01,
+          "partsChanged": []
         },
         {
           "boat": 5,
@@ -758,7 +973,14 @@
           "motorNo": "3",
           "motor2Rate": 41.33,
           "boat2Rate": 30.65,
-          "exhibitionTime": 6.83
+          "seriesRanks": [
+            2
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.83,
+          "tilt": 0.0,
+          "exhibitionST": 0.08,
+          "partsChanged": []
         },
         {
           "boat": 6,
@@ -773,7 +995,12 @@
           "motorNo": "18",
           "motor2Rate": 47.76,
           "boat2Rate": 35.29,
-          "exhibitionTime": 6.85
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.85,
+          "tilt": 0.0,
+          "exhibitionST": 0.21,
+          "partsChanged": []
         }
       ],
       "weather": {
@@ -811,7 +1038,14 @@
           "motorNo": "56",
           "motor2Rate": 38.33,
           "boat2Rate": 34.92,
-          "exhibitionTime": 6.88
+          "seriesRanks": [
+            6
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.88,
+          "tilt": -0.5,
+          "exhibitionST": -0.01,
+          "partsChanged": []
         },
         {
           "boat": 2,
@@ -826,7 +1060,12 @@
           "motorNo": "5",
           "motor2Rate": 33.9,
           "boat2Rate": 38.81,
-          "exhibitionTime": 6.88
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.88,
+          "tilt": -0.5,
+          "exhibitionST": 0.05,
+          "partsChanged": []
         },
         {
           "boat": 3,
@@ -841,7 +1080,12 @@
           "motorNo": "52",
           "motor2Rate": 43.1,
           "boat2Rate": 31.34,
-          "exhibitionTime": 6.87
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.87,
+          "tilt": 0.0,
+          "exhibitionST": 0.07,
+          "partsChanged": []
         },
         {
           "boat": 4,
@@ -856,7 +1100,12 @@
           "motorNo": "33",
           "motor2Rate": 38.57,
           "boat2Rate": 40.0,
-          "exhibitionTime": 6.78
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.78,
+          "tilt": 0.0,
+          "exhibitionST": 0.1,
+          "partsChanged": []
         },
         {
           "boat": 5,
@@ -871,7 +1120,12 @@
           "motorNo": "63",
           "motor2Rate": 33.33,
           "boat2Rate": 46.03,
-          "exhibitionTime": 6.91
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.91,
+          "tilt": 0.0,
+          "exhibitionST": 0.17,
+          "partsChanged": []
         },
         {
           "boat": 6,
@@ -886,7 +1140,14 @@
           "motorNo": "51",
           "motor2Rate": 33.33,
           "boat2Rate": 31.75,
-          "exhibitionTime": 6.85
+          "seriesRanks": [
+            1
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.85,
+          "tilt": 0.0,
+          "exhibitionST": 0.13,
+          "partsChanged": []
         }
       ],
       "weather": {
@@ -924,7 +1185,14 @@
           "motorNo": "49",
           "motor2Rate": 29.51,
           "boat2Rate": 44.26,
-          "exhibitionTime": 6.87
+          "seriesRanks": [
+            3
+          ],
+          "seriesOuterTop3": 1,
+          "exhibitionTime": 6.87,
+          "tilt": -0.5,
+          "exhibitionST": 0.12,
+          "partsChanged": []
         },
         {
           "boat": 2,
@@ -939,7 +1207,12 @@
           "motorNo": "62",
           "motor2Rate": 33.33,
           "boat2Rate": 37.88,
-          "exhibitionTime": 6.9
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.9,
+          "tilt": -0.5,
+          "exhibitionST": 0.26,
+          "partsChanged": []
         },
         {
           "boat": 3,
@@ -954,7 +1227,14 @@
           "motorNo": "13",
           "motor2Rate": 30.56,
           "boat2Rate": 44.62,
-          "exhibitionTime": 6.89
+          "seriesRanks": [
+            4
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.89,
+          "tilt": -0.5,
+          "exhibitionST": 0.13,
+          "partsChanged": []
         },
         {
           "boat": 4,
@@ -969,7 +1249,14 @@
           "motorNo": "58",
           "motor2Rate": 40.0,
           "boat2Rate": 28.13,
-          "exhibitionTime": 6.73
+          "seriesRanks": [
+            3
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.73,
+          "tilt": -0.5,
+          "exhibitionST": 0.11,
+          "partsChanged": []
         },
         {
           "boat": 5,
@@ -984,7 +1271,14 @@
           "motorNo": "43",
           "motor2Rate": 40.0,
           "boat2Rate": 34.92,
-          "exhibitionTime": 6.74
+          "seriesRanks": [
+            3
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.74,
+          "tilt": 0.0,
+          "exhibitionST": 0.09,
+          "partsChanged": []
         },
         {
           "boat": 6,
@@ -999,7 +1293,12 @@
           "motorNo": "59",
           "motor2Rate": 47.62,
           "boat2Rate": 46.15,
-          "exhibitionTime": 6.8
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.8,
+          "tilt": -0.5,
+          "exhibitionST": 0.12,
+          "partsChanged": []
         }
       ],
       "weather": {
@@ -1037,7 +1336,14 @@
           "motorNo": "24",
           "motor2Rate": 29.69,
           "boat2Rate": 28.81,
-          "exhibitionTime": 6.81
+          "seriesRanks": [
+            3
+          ],
+          "seriesOuterTop3": 1,
+          "exhibitionTime": 6.81,
+          "tilt": -0.5,
+          "exhibitionST": 0.14,
+          "partsChanged": []
         },
         {
           "boat": 2,
@@ -1052,7 +1358,12 @@
           "motorNo": "19",
           "motor2Rate": 38.03,
           "boat2Rate": 33.87,
-          "exhibitionTime": 6.8
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.8,
+          "tilt": 0.0,
+          "exhibitionST": 0.13,
+          "partsChanged": []
         },
         {
           "boat": 3,
@@ -1067,7 +1378,14 @@
           "motorNo": "32",
           "motor2Rate": 44.29,
           "boat2Rate": 46.3,
-          "exhibitionTime": 6.87
+          "seriesRanks": [
+            2
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.87,
+          "tilt": -0.5,
+          "exhibitionST": 0.12,
+          "partsChanged": []
         },
         {
           "boat": 4,
@@ -1082,7 +1400,14 @@
           "motorNo": "48",
           "motor2Rate": 50.0,
           "boat2Rate": 28.57,
-          "exhibitionTime": 6.79
+          "seriesRanks": [
+            2
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.79,
+          "tilt": 0.0,
+          "exhibitionST": 0.23,
+          "partsChanged": []
         },
         {
           "boat": 5,
@@ -1097,7 +1422,14 @@
           "motorNo": "9",
           "motor2Rate": 29.58,
           "boat2Rate": 35.82,
-          "exhibitionTime": 6.79
+          "seriesRanks": [
+            1
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.79,
+          "tilt": -0.5,
+          "exhibitionST": 0.19,
+          "partsChanged": []
         },
         {
           "boat": 6,
@@ -1112,7 +1444,16 @@
           "motorNo": "6",
           "motor2Rate": 31.03,
           "boat2Rate": 32.86,
-          "exhibitionTime": 6.84
+          "seriesRanks": [
+            2
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.84,
+          "tilt": 0.0,
+          "exhibitionST": 0.17,
+          "partsChanged": [
+            "リング×４"
+          ]
         }
       ],
       "weather": {
@@ -1150,7 +1491,14 @@
           "motorNo": "42",
           "motor2Rate": 34.92,
           "boat2Rate": 32.31,
-          "exhibitionTime": 6.77
+          "seriesRanks": [
+            2
+          ],
+          "seriesOuterTop3": 1,
+          "exhibitionTime": 6.77,
+          "tilt": 0.0,
+          "exhibitionST": 0.05,
+          "partsChanged": []
         },
         {
           "boat": 2,
@@ -1165,7 +1513,14 @@
           "motorNo": "30",
           "motor2Rate": 29.58,
           "boat2Rate": 29.31,
-          "exhibitionTime": 6.85
+          "seriesRanks": [
+            4
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.85,
+          "tilt": 0.0,
+          "exhibitionST": 0.07,
+          "partsChanged": []
         },
         {
           "boat": 3,
@@ -1180,7 +1535,17 @@
           "motorNo": "8",
           "motor2Rate": 32.43,
           "boat2Rate": 31.15,
-          "exhibitionTime": 6.99
+          "seriesRanks": [
+            4
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.99,
+          "tilt": 0.0,
+          "exhibitionST": 0.09,
+          "partsChanged": [
+            "ピストン×２",
+            "リング×４"
+          ]
         },
         {
           "boat": 4,
@@ -1195,7 +1560,14 @@
           "motorNo": "27",
           "motor2Rate": 34.29,
           "boat2Rate": 39.39,
-          "exhibitionTime": 6.97
+          "seriesRanks": [
+            1
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.97,
+          "tilt": -0.5,
+          "exhibitionST": 0.24,
+          "partsChanged": []
         },
         {
           "boat": 5,
@@ -1210,7 +1582,14 @@
           "motorNo": "47",
           "motor2Rate": 30.43,
           "boat2Rate": 31.15,
-          "exhibitionTime": 6.87
+          "seriesRanks": [
+            1
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.87,
+          "tilt": 0.0,
+          "exhibitionST": 0.14,
+          "partsChanged": []
         },
         {
           "boat": 6,
@@ -1225,7 +1604,12 @@
           "motorNo": "54",
           "motor2Rate": 40.32,
           "boat2Rate": 46.15,
-          "exhibitionTime": 6.79
+          "seriesRanks": [],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.79,
+          "tilt": 0.0,
+          "exhibitionST": 0.09,
+          "partsChanged": []
         }
       ],
       "weather": {
@@ -1263,7 +1647,14 @@
           "motorNo": "29",
           "motor2Rate": 32.39,
           "boat2Rate": 50.0,
-          "exhibitionTime": 6.72
+          "seriesRanks": [
+            3
+          ],
+          "seriesOuterTop3": 1,
+          "exhibitionTime": 6.72,
+          "tilt": -0.5,
+          "exhibitionST": 0.09,
+          "partsChanged": []
         },
         {
           "boat": 2,
@@ -1278,7 +1669,14 @@
           "motorNo": "11",
           "motor2Rate": 35.38,
           "boat2Rate": 35.94,
-          "exhibitionTime": 6.8
+          "seriesRanks": [
+            5
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.8,
+          "tilt": -0.5,
+          "exhibitionST": 0.13,
+          "partsChanged": []
         },
         {
           "boat": 3,
@@ -1293,7 +1691,14 @@
           "motorNo": "50",
           "motor2Rate": 44.44,
           "boat2Rate": 32.84,
-          "exhibitionTime": 6.79
+          "seriesRanks": [
+            2
+          ],
+          "seriesOuterTop3": 1,
+          "exhibitionTime": 6.79,
+          "tilt": 0.0,
+          "exhibitionST": 0.03,
+          "partsChanged": []
         },
         {
           "boat": 4,
@@ -1308,7 +1713,14 @@
           "motorNo": "16",
           "motor2Rate": 33.33,
           "boat2Rate": 38.71,
-          "exhibitionTime": 6.79
+          "seriesRanks": [
+            1
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.79,
+          "tilt": -0.5,
+          "exhibitionST": 0.16,
+          "partsChanged": []
         },
         {
           "boat": 5,
@@ -1323,7 +1735,14 @@
           "motorNo": "5",
           "motor2Rate": 33.9,
           "boat2Rate": 38.81,
-          "exhibitionTime": 6.73
+          "seriesRanks": [
+            3
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.73,
+          "tilt": -0.5,
+          "exhibitionST": 0.16,
+          "partsChanged": []
         },
         {
           "boat": 6,
@@ -1338,7 +1757,14 @@
           "motorNo": "17",
           "motor2Rate": 31.94,
           "boat2Rate": 31.25,
-          "exhibitionTime": 6.8
+          "seriesRanks": [
+            1
+          ],
+          "seriesOuterTop3": 0,
+          "exhibitionTime": 6.8,
+          "tilt": 0.5,
+          "exhibitionST": 0.02,
+          "partsChanged": []
         }
       ],
       "weather": {
