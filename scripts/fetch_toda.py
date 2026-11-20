@@ -118,6 +118,24 @@ def parse_racelist(hd: str, rno: int) -> dict | None:
         motor_stats = get_lines(6) # 例: ['32', '38.50', '55.20']
         boat_stats = get_lines(7)  # 例: ['15', '35.10', '50.00']
 
+        # 今節成績（進入コース行: 2行目、着順行: 4行目）から節間着順と外枠3着以内を抽出
+        series_ranks = []
+        series_outer_top3 = 0
+        trs = tbody.select("tr")
+        if len(trs) >= 4:
+            course_tds = trs[1].select("td")
+            rank_tds = trs[3].select("td")
+            for c_idx, r_td in enumerate(rank_tds):
+                r_txt = r_td.get_text(strip=True).translate(ZEN_TO_HAN)
+                if re.match(r"^[1-6]$", r_txt):
+                    rank_val = int(r_txt)
+                    series_ranks.append(rank_val)
+                    # 対応する進入コースが4〜6コースで3着以内なら外枠好走としてカウント
+                    if c_idx < len(course_tds):
+                        c_txt = course_tds[c_idx].get_text(strip=True).translate(ZEN_TO_HAN)
+                        if re.match(r"^[4-6]$", c_txt) and rank_val <= 3:
+                            series_outer_top3 += 1
+
         racers.append({
             "boat": idx,
             "regNo": reg_match.group(1) if reg_match else "",
@@ -131,6 +149,8 @@ def parse_racelist(hd: str, rno: int) -> dict | None:
             "motorNo": motor_stats[0] if len(motor_stats) > 0 else "",
             "motor2Rate": to_float(motor_stats[1]) if len(motor_stats) > 1 else 0.0,
             "boat2Rate": to_float(boat_stats[1]) if len(boat_stats) > 1 else 0.0,
+            "seriesRanks": series_ranks,
+            "seriesOuterTop3": series_outer_top3,
             "exhibitionTime": None,
         })
 
