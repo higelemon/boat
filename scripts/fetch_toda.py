@@ -15,6 +15,9 @@ HEADERS = {
     "Referer": "https://www.boatrace.jp/",
 }
 
+# 全角数字→半角数字の変換テーブル
+ZEN_TO_HAN = str.maketrans("０１２３４５６７８９", "0123456789")
+
 # ブラウザ偽装セッション（Cookieを維持して自然なアクセスにする）
 session = requests.Session(impersonate="chrome")
 
@@ -40,7 +43,7 @@ def to_float(val: str) -> float:
 
 def normalize_date_str(val: str) -> str:
     """YYYYMMDD / YYYY/MM/DD / YYYY-MM-DD / YYYY/M/D 等を YYYYMMDD 形式に正規化する"""
-    s = val.strip()
+    s = val.strip().translate(ZEN_TO_HAN)
     if not s:
         return ""
     m = re.match(r"^(\d{4})[/\-](\d{1,2})[/\-](\d{1,2})$", s)
@@ -156,8 +159,12 @@ def merge_beforeinfo(hd: str, race_data: dict) -> dict:
             if re.match(r"^\d\.\d{2}$", ex_text):
                 race_data["racers"][idx]["exhibitionTime"] = float(ex_text)
 
-    # 安定板装着の有無をチェック
-    stabilizer = "安定板" in soup.get_text()
+    # 安定板装着の有無をチェック（ラベル・見出し領域に限定して誤検知を防ぐ）
+    notice_texts = " ".join(
+        el.get_text(" ", strip=True)
+        for el in soup.select("span.label2, div.weather1, h3.title16_titleDetail__add2020")
+    )
+    stabilizer = "安定板" in notice_texts
 
     # 水面気象情報（天候・風向・風速・波高）
     weather_el = soup.select_one("div.weather1")
@@ -180,21 +187,28 @@ def merge_beforeinfo(hd: str, race_data: dict) -> dict:
 
 
 def merge_raceresult(hd: str, race_data: dict) -> dict:
-    """確定済みレースの結果（1〜3着・決まり手・3連単払戻金）を取得して結合する"""
+    """確定済みレースの結果（1〜3着の枠番・決まり手・3連単払戻金）を取得して結合する"""
     rno = race_data["rno"]
     url = f"https://www.boatrace.jp/owpc/pc/race/raceresult?rno={rno}&jcd={JCD}&hd={hd}"
     soup = fetch_soup(url)
     if not soup or "データがありません" in soup.text:
         return race_data
 
-    # 1〜3着の枠番を抽出
+    # 着順テーブル（theadに「着」「枠」を含む table.is-w495）を特定して1〜3着の「枠番」を抽出
     order = []
-    for tbody in soup.select("table.is-w495 tbody")[:3]:
-        boat_td = tbody.select_one("td.is-fs14")
-        if boat_td:
-            b_txt = boat_td.get_text(strip=True)
-            if b_txt.isdigit():
-                order.append(int(b_txt))
+    for table in soup.select("table.is-w495"):
+        thead_text = table.select_one("thead").get_text(" ", strip=True) if table.select_one("thead") else ""
+        if "着" in thead_text and "枠" in thead_text:
+            for tbody in table.select("tbody"):
+                tds = tbody.select("tr:first-child td")
+                if len(tds) >= 2:
+                    rank_txt = tds[0].get_text(strip=True).translate(ZEN_TO_HAN)
+                    boat_txt = tds[1].get_text(strip=True).translate(ZEN_TO_HAN)
+                    if rank_txt in ("1", "2", "3") and boat_txt.isdigit():
+                        order.append(int(boat_txt))
+                if len(order) >= 3:
+                    break
+            break
 
     if len(order) < 3:
         return race_data
@@ -216,7 +230,7 @@ def merge_raceresult(hd: str, race_data: dict) -> dict:
         if "3連単" in tbody.get_text():
             payout_el = tbody.select_one("span.is-payout1")
             if payout_el:
-                digits = re.sub(r"[^\d]", "", payout_el.get_text())
+                digits = re.sub(r"[^\d]", "", payout_el.get_text().translate(ZEN_TO_HAN))
                 if digits:
                     payout_3t = int(digits)
             break
