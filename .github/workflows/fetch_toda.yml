@@ -1,0 +1,41 @@
+name: Fetch Toda Boatrace Data
+
+on:
+  schedule:
+    # 毎日 8:30 JST (23:30 UTC) に自動実行
+    - cron: "30 23 * * *"
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: "取得対象日 (YYYYMMDD形式・空欄で本日)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run scraper
+        run: python scripts/fetch_toda.py ${{ github.event.inputs.target_date }}
+
+      - name: Commit and push JSON
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git diff --staged --quiet || git commit -m "Update Toda race data"
+          git push
