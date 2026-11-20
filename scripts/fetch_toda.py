@@ -4,22 +4,26 @@ import re
 import sys
 import time
 from datetime import datetime, timedelta, timezone
-import requests
+from curl_cffi import requests
 from bs4 import BeautifulSoup
 
 JST = timezone(timedelta(hours=9))
 JCD = "02"  # 戸田の場コード
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
+    "Referer": "https://www.boatrace.jp/",
 }
+
+# ブラウザ偽装セッションを作成（Cookieを保持して自然なアクセスにする）
+session = requests.Session(impersonate="chrome")
 
 
 def fetch_soup(url: str) -> BeautifulSoup | None:
     try:
-        res = requests.get(url, headers=HEADERS, timeout=15)
+        res = session.get(url, headers=HEADERS, timeout=15)
         res.raise_for_status()
-        res.encoding = res.apparent_encoding
-        return BeautifulSoup(res.text, "html.parser")
+        return BeautifulSoup(res.content, "html.parser")
     except Exception as e:
         print(f"[WARN] 取得失敗: {url} ({e})")
         return None
@@ -51,7 +55,7 @@ def parse_racelist(hd: str, rno: int) -> dict | None:
 
         # F数・L数・平均ST / 全国勝率 / 当地勝率 / モーター / ボート
         tds = tbody.select("tr:first-child td")
-        # boatrace.jpの出走表テーブル列構造に合わせて抽出
+
         def get_lines(td_idx: int) -> list[str]:
             if td_idx < len(tds):
                 return [s.strip() for s in tds[td_idx].stripped_strings]
@@ -63,6 +67,12 @@ def parse_racelist(hd: str, rno: int) -> dict | None:
         motor_stats = get_lines(6) # 例: ['32', '38.50', '55.20']
         boat_stats = get_lines(7)  # 例: ['15', '35.10', '50.00']
 
+        def to_float(val: str) -> float:
+            try:
+                return float(val)
+            except (ValueError, TypeError):
+                return 0.0
+
         racers.append({
             "boat": idx,
             "regNo": reg_match.group(1) if reg_match else "",
@@ -70,12 +80,12 @@ def parse_racelist(hd: str, rno: int) -> dict | None:
             "name": name,
             "fCount": fl_st[0] if len(fl_st) > 0 else "F0",
             "avgST": fl_st[2] if len(fl_st) > 2 else "-",
-            "natWinRate": float(nat_stats[0]) if len(nat_stats) > 0 and nat_stats[0] != "-" else 0.0,
-            "nat2Rate": float(nat_stats[1]) if len(nat_stats) > 1 and nat_stats[1] != "-" else 0.0,
-            "locWinRate": float(loc_stats[0]) if len(loc_stats) > 0 and loc_stats[0] != "-" else 0.0,
+            "natWinRate": to_float(nat_stats[0]) if len(nat_stats) > 0 else 0.0,
+            "nat2Rate": to_float(nat_stats[1]) if len(nat_stats) > 1 else 0.0,
+            "locWinRate": to_float(loc_stats[0]) if len(loc_stats) > 0 else 0.0,
             "motorNo": motor_stats[0] if len(motor_stats) > 0 else "",
-            "motor2Rate": float(motor_stats[1]) if len(motor_stats) > 1 and motor_stats[1] != "-" else 0.0,
-            "boat2Rate": float(boat_stats[1]) if len(boat_stats) > 1 and boat_stats[1] != "-" else 0.0,
+            "motor2Rate": to_float(motor_stats[1]) if len(motor_stats) > 1 else 0.0,
+            "boat2Rate": to_float(boat_stats[1]) if len(boat_stats) > 1 else 0.0,
             "exhibitionTime": None,  # 直前情報で補完
         })
 
@@ -123,6 +133,11 @@ def main():
         hd = datetime.now(JST).strftime("%Y%m%d")
 
     print(f"=== 戸田競艇データ取得開始: {hd} ===")
+
+    # 先にトップページへ一度アクセスしてCookieを取得しておく
+    fetch_soup("https://www.boatrace.jp/")
+    time.sleep(1)
+
     races = {}
 
     for rno in range(1, 13):
@@ -152,7 +167,7 @@ def main():
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    # 最新データとして固定名でも保存（アプリ側で読み込みやすくするため）
+    # 最新データとして固定名でも保存
     with open("data/toda_latest.json", "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
