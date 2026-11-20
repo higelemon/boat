@@ -164,6 +164,13 @@ def parse_racelist(hd: str, rno: int) -> dict | None:
         "racers": racers,
         "weather": {},
         "result": None,
+        "odds3t": {},
+        "odds3f": {},
+        "odds2t": {},
+        "odds2f": {},
+        "oddsK": {},
+        "oddsT": {},
+        "oddsF": {},
     }
 
 
@@ -307,6 +314,208 @@ def merge_raceresult(hd: str, race_data: dict) -> dict:
     return race_data
 
 
+def expand_table_grid(tbody) -> list[list[str]]:
+    """rowspan / colspan を展開して tbody のセル文字列を2次元配列にする"""
+    grid: list[list[str]] = []
+    spans: dict[tuple[int, int], str] = {}
+
+    for r_idx, tr in enumerate(tbody.select("tr")):
+        row: list[str] = []
+        c_idx = 0
+        for td in tr.select("td"):
+            while (r_idx, c_idx) in spans:
+                row.append(spans.pop((r_idx, c_idx)))
+                c_idx += 1
+            text = td.get_text(strip=True).translate(ZEN_TO_HAN)
+            try:
+                rowspan = int(td.get("rowspan", 1))
+            except (ValueError, TypeError):
+                rowspan = 1
+            try:
+                colspan = int(td.get("colspan", 1))
+            except (ValueError, TypeError):
+                colspan = 1
+            for dc in range(colspan):
+                row.append(text)
+                for dr in range(1, rowspan):
+                    spans[(r_idx + dr, c_idx + dc)] = text
+            c_idx += colspan
+        while (r_idx, c_idx) in spans:
+            row.append(spans.pop((r_idx, c_idx)))
+            c_idx += 1
+        grid.append(row)
+    return grid
+
+
+def parse_single_odds(val: str) -> float | None:
+    """単一オッズ文字列（例: '12.4'）をfloatへ変換する。欠場・未発売はNone"""
+    s = val.strip().replace(",", "")
+    if re.match(r"^\d+(\.\d+)?$", s):
+        num = float(s)
+        return num if num > 0 else None
+    return None
+
+
+def parse_range_odds(val: str) -> str | None:
+    """幅オッズ文字列（例: '1.2-1.8'）を正規化して返す。欠場・未発売はNone"""
+    s = val.strip().replace(",", "").replace("〜", "-").replace("－", "-")
+    m = re.match(r"^(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)$", s)
+    if m:
+        return f"{float(m.group(1)):.1f}-{float(m.group(2)):.1f}"
+    single = parse_single_odds(s)
+    if single is not None:
+        return f"{single:.1f}"
+    return None
+
+
+def merge_odds(hd: str, race_data: dict) -> dict:
+    """
+    boatrace.jp の公式オッズページから全7賭式のオッズを取得して結合する:
+      - odds3t : 3連単 (例: {"1-2-3": 8.4})
+      - odds3f : 3連複 (例: {"1=2=3": 3.2})
+      - odds2t : 2連単 (例: {"1-2": 3.5})
+      - odds2f : 2連複 (例: {"1=2": 2.1})
+      - oddsK  : 拡連複 (例: {"1=2": "1.5-2.1"})
+      - oddsT  : 単勝   (例: {"1": 1.8})
+      - oddsF  : 複勝   (例: {"1": "1.1-1.4"})
+    """
+    rno = race_data["rno"]
+
+    # 1. 3連単 (odds3t)
+    soup_3t = fetch_soup(f"https://www.boatrace.jp/owpc/pc/race/odds3t?rno={rno}&jcd={JCD}&hd={hd}")
+    if soup_3t and "データがありません" not in soup_3t.text:
+        tbody = soup_3t.select_one("tbody.is-p3-0")
+        if tbody:
+            grid = expand_table_grid(tbody)
+            odds_3t = {}
+            for row in grid:
+                for g in range(6):
+                    c = g * 3
+                    if c + 2 >= len(row):
+                        continue
+                    b1 = g + 1
+                    b2_txt, b3_txt, o_txt = row[c], row[c + 1], row[c + 2]
+                    if re.match(r"^[1-6]$", b2_txt) and re.match(r"^[1-6]$", b3_txt):
+                        val = parse_single_odds(o_txt)
+                        if val is not None:
+                            odds_3t[f"{b1}-{b2_txt}-{b3_txt}"] = val
+            race_data["odds3t"] = odds_3t
+    time.sleep(0.35)
+
+    # 2. 3連複 (odds3f)
+    soup_3f = fetch_soup(f"https://www.boatrace.jp/owpc/pc/race/odds3f?rno={rno}&jcd={JCD}&hd={hd}")
+    if soup_3f and "データがありません" not in soup_3f.text:
+        tbody = soup_3f.select_one("tbody.is-p3-0")
+        if tbody:
+            grid = expand_table_grid(tbody)
+            odds_3f = {}
+            for row in grid:
+                for g in range(4):
+                    c = g * 3
+                    if c + 2 >= len(row):
+                        continue
+                    b1 = g + 1
+                    b2_txt, b3_txt, o_txt = row[c], row[c + 1], row[c + 2]
+                    if re.match(r"^[1-6]$", b2_txt) and re.match(r"^[1-6]$", b3_txt):
+                        val = parse_single_odds(o_txt)
+                        if val is not None:
+                            odds_3f[f"{b1}={b2_txt}={b3_txt}"] = val
+            race_data["odds3f"] = odds_3f
+    time.sleep(0.35)
+
+    # 3. 2連単・2連複 (odds2tf)
+    soup_2tf = fetch_soup(f"https://www.boatrace.jp/owpc/pc/race/odds2tf?rno={rno}&jcd={JCD}&hd={hd}")
+    if soup_2tf and "データがありません" not in soup_2tf.text:
+        tbodies = soup_2tf.select("tbody.is-p3-0")
+        # 1つ目のテーブル: 2連単 (6組×2列)
+        if len(tbodies) >= 1:
+            grid = expand_table_grid(tbodies[0])
+            odds_2t = {}
+            for row in grid:
+                for g in range(6):
+                    c = g * 2
+                    if c + 1 >= len(row):
+                        continue
+                    b1 = g + 1
+                    b2_txt, o_txt = row[c], row[c + 1]
+                    if re.match(r"^[1-6]$", b2_txt):
+                        val = parse_single_odds(o_txt)
+                        if val is not None:
+                            odds_2t[f"{b1}-{b2_txt}"] = val
+            race_data["odds2t"] = odds_2t
+        # 2つ目のテーブル: 2連複 (5組×2列)
+        if len(tbodies) >= 2:
+            grid = expand_table_grid(tbodies[1])
+            odds_2f = {}
+            for row in grid:
+                for g in range(5):
+                    c = g * 2
+                    if c + 1 >= len(row):
+                        continue
+                    b1 = g + 1
+                    b2_txt, o_txt = row[c], row[c + 1]
+                    if re.match(r"^[1-6]$", b2_txt):
+                        val = parse_single_odds(o_txt)
+                        if val is not None:
+                            odds_2f[f"{b1}={b2_txt}"] = val
+            race_data["odds2f"] = odds_2f
+    time.sleep(0.35)
+
+    # 4. 拡連複 (oddsk)
+    soup_k = fetch_soup(f"https://www.boatrace.jp/owpc/pc/race/oddsk?rno={rno}&jcd={JCD}&hd={hd}")
+    if soup_k and "データがありません" not in soup_k.text:
+        tbody = soup_k.select_one("tbody.is-p3-0")
+        if tbody:
+            grid = expand_table_grid(tbody)
+            odds_k = {}
+            for row in grid:
+                for g in range(5):
+                    c = g * 2
+                    if c + 1 >= len(row):
+                        continue
+                    b1 = g + 1
+                    b2_txt, o_txt = row[c], row[c + 1]
+                    if re.match(r"^[1-6]$", b2_txt):
+                        val = parse_range_odds(o_txt)
+                        if val is not None:
+                            odds_k[f"{b1}={b2_txt}"] = val
+            race_data["oddsK"] = odds_k
+    time.sleep(0.35)
+
+    # 5. 単勝・複勝 (oddstf)
+    soup_tf = fetch_soup(f"https://www.boatrace.jp/owpc/pc/race/oddstf?rno={rno}&jcd={JCD}&hd={hd}")
+    if soup_tf and "データがありません" not in soup_tf.text:
+        # td.oddsPoint を含むテーブルを順に抽出（1つ目: 単勝、2つ目: 複勝）
+        odds_tables = [t for t in soup_tf.select("table") if t.select_one("td.oddsPoint")]
+        if len(odds_tables) >= 1:
+            odds_t = {}
+            for tr in odds_tables[0].select("tbody tr"):
+                tds = tr.select("td")
+                o_el = tr.select_one("td.oddsPoint")
+                if tds and o_el:
+                    b_txt = tds[0].get_text(strip=True).translate(ZEN_TO_HAN)
+                    if re.match(r"^[1-6]$", b_txt):
+                        val = parse_single_odds(o_el.get_text(strip=True).translate(ZEN_TO_HAN))
+                        if val is not None:
+                            odds_t[b_txt] = val
+            race_data["oddsT"] = odds_t
+
+        if len(odds_tables) >= 2:
+            odds_f = {}
+            for tr in odds_tables[1].select("tbody tr"):
+                tds = tr.select("td")
+                o_el = tr.select_one("td.oddsPoint")
+                if tds and o_el:
+                    b_txt = tds[0].get_text(strip=True).translate(ZEN_TO_HAN)
+                    if re.match(r"^[1-6]$", b_txt):
+                        val = parse_range_odds(o_el.get_text(strip=True).translate(ZEN_TO_HAN))
+                        if val is not None:
+                            odds_f[b_txt] = val
+            race_data["oddsF"] = odds_f
+
+    return race_data
+
+
 def fetch_single_day(hd: str, skip_existing: bool = False) -> bool:
     """指定された1日分（YYYYMMDD）の全12Rを取得してJSON保存する。保存成功ならTrue"""
     out_path = f"data/toda_{hd}.json"
@@ -326,12 +535,14 @@ def fetch_single_day(hd: str, skip_existing: bool = False) -> bool:
                 return False
             continue
 
-        time.sleep(0.7)
+        time.sleep(0.5)
         race_data = merge_beforeinfo(hd, race_data)
-        time.sleep(0.7)
+        time.sleep(0.5)
+        race_data = merge_odds(hd, race_data)
+        time.sleep(0.5)
         race_data = merge_raceresult(hd, race_data)
         races[str(rno)] = race_data
-        time.sleep(0.7)
+        time.sleep(0.5)
 
     if not races:
         return False
@@ -378,12 +589,14 @@ def build_date_list(start_str: str, end_str: str) -> list[str]:
 
 
 def main():
-    today_hd = datetime.now(JST).strftime("%Y%m%d")
+    now_jst = datetime.now(JST)
+    today_hd = now_jst.strftime("%Y%m%d")
+    yesterday_hd = (now_jst - timedelta(days=1)).strftime("%Y%m%d")
     arg1 = normalize_date_str(sys.argv[1]) if len(sys.argv) > 1 else ""
     arg2 = normalize_date_str(sys.argv[2]) if len(sys.argv) > 2 else ""
     skip_existing = os.environ.get("SKIP_EXISTING", "false").lower() == "true"
 
-    # 日付リストを決定
+    # 日付リストを決定（引数なし自動実行時は「前日(結果含む確定版)＋当日(出走表)」の2日分）
     if arg1 and arg2:
         dates = build_date_list(arg1, arg2)
         is_bulk = True
@@ -391,7 +604,7 @@ def main():
         dates = build_date_list(arg1, arg1)
         is_bulk = False
     else:
-        dates = [today_hd]
+        dates = [yesterday_hd, today_hd]
         is_bulk = False
 
     if not dates:
@@ -409,10 +622,10 @@ def main():
         if fetch_single_day(hd, skip_existing=skip_existing):
             saved_dates.append(hd)
 
-    # toda_latest.json の更新（過去一括取得で古い日付に上書きしないよう制御）
+    # toda_latest.json の更新（当日開催なら当日、当日非開催なら前日で更新）
     if saved_dates:
         latest_saved = max(saved_dates)
-        should_update_latest = (not is_bulk and latest_saved == today_hd) or (not os.path.exists("data/toda_latest.json"))
+        should_update_latest = (not is_bulk and latest_saved in (today_hd, yesterday_hd)) or (not os.path.exists("data/toda_latest.json"))
         if should_update_latest:
             src_path = f"data/toda_{latest_saved}.json"
             with open(src_path, "r", encoding="utf-8") as f:
