@@ -38,6 +38,20 @@ def to_float(val: str) -> float:
         return 0.0
 
 
+def normalize_date_str(val: str) -> str:
+    """YYYYMMDD / YYYY/MM/DD / YYYY-MM-DD / YYYY/M/D 等を YYYYMMDD 形式に正規化する"""
+    s = val.strip()
+    if not s:
+        return ""
+    m = re.match(r"^(\d{4})[/\-](\d{1,2})[/\-](\d{1,2})$", s)
+    if m:
+        return f"{m.group(1)}{int(m.group(2)):02d}{int(m.group(3)):02d}"
+    digits = re.sub(r"\D", "", s)
+    if len(digits) == 8:
+        return digits
+    return ""
+
+
 def map_wind_direction(classes: list[str]) -> str:
     """
     boatrace.jp の風向アイコンクラス (is-wind1 〜 is-wind16) を
@@ -284,15 +298,15 @@ def build_date_list(start_str: str, end_str: str) -> list[str]:
 
 def main():
     today_hd = datetime.now(JST).strftime("%Y%m%d")
-    arg1 = sys.argv[1].strip() if len(sys.argv) > 1 else ""
-    arg2 = sys.argv[2].strip() if len(sys.argv) > 2 else ""
+    arg1 = normalize_date_str(sys.argv[1]) if len(sys.argv) > 1 else ""
+    arg2 = normalize_date_str(sys.argv[2]) if len(sys.argv) > 2 else ""
     skip_existing = os.environ.get("SKIP_EXISTING", "false").lower() == "true"
 
     # 日付リストを決定
-    if re.match(r"^\d{8}$", arg1) and re.match(r"^\d{8}$", arg2):
+    if arg1 and arg2:
         dates = build_date_list(arg1, arg2)
         is_bulk = True
-    elif re.match(r"^\d{8}$", arg1):
+    elif arg1:
         dates = [arg1]
         is_bulk = False
     else:
