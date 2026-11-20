@@ -1,49 +1,60 @@
 name: Fetch Toda Boatrace Data
 
 on:
-  schedule:
-    # 毎日 8:30 JST (23:30 UTC) に自動実行
-    - cron: "30 23 * * *"
-  workflow_dispatch:
-    inputs:
-      target_date:
-        description: "取得対象日 (YYYYMMDD形式・空欄で本日)"
-        required: false
-        default: ""
+schedule:
+# 毎日 8:30 JST (23:30 UTC) に当日分を自動実行
+- cron: "30 23 * * *"
+workflow_dispatch:
+inputs:
+start_date:
+description: "開始日 (YYYYMMDD形式・空欄で本日)"
+required: false
+default: ""
+end_date:
+description: "終了日 (YYYYMMDD形式・期間一括取得時のみ入力)"
+required: false
+default: ""
+skip_existing:
+description: "すでに取得済みの日付JSONをスキップする"
+type: boolean
+required: false
+default: true
 
 permissions:
-  contents: write
+contents: write
 
 jobs:
-  fetch:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+fetch:
+runs-on: ubuntu-latest
+steps:
+- name: Checkout repository
+uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+  - name: Set up Python
+    uses: actions/setup-python@v5
+    with:
+      python-version: "3.11"
 
-      - name: Install dependencies
-        run: pip install curl_cffi beautifulsoup4
+  - name: Install dependencies
+    run: pip install curl_cffi beautifulsoup4
 
-      - name: Run scraper
-        run: python scripts/fetch_toda.py ${{ github.event.inputs.target_date }}
+  - name: Run scraper
+    env:
+      SKIP_EXISTING: ${{ github.event.inputs.skip_existing || 'false' }}
+    run: python scripts/fetch_toda.py "\({{ github.event.inputs.start_date }}" "\){{ github.event.inputs.end_date }}"
 
-      - name: Commit and push JSON
-        run: |
-          if [ ! -d "data" ]; then
-            echo "dataフォルダがないためスキップします（非開催日など）"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/
-          if git diff --staged --quiet; then
-            echo "変更がないためスキップします"
-          else
-            git commit -m "Update Toda race data"
-            git push
-          fi
+  - name: Commit and push JSON
+    run: |
+      if [ ! -d "data" ]; then
+        echo "dataフォルダがないためスキップします（非開催日など）"
+        exit 0
+      fi
+      git config user.name "github-actions[bot]"
+      git config user.email "github-actions[bot]@users.noreply.github.com"
+      git add data/
+      if git diff --staged --quiet; then
+        echo "変更がないためスキップします"
+      else
+        git commit -m "Update Toda race data"
+        git push
+      fi
