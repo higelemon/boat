@@ -40,8 +40,10 @@ uses: actions/checkout@v4
 
   - name: Run scraper
     env:
-      SKIP_EXISTING: ${{ github.event.inputs.skip_existing || 'false' }}
-    run: python scripts/fetch_toda.py "\({{ github.event.inputs.start_date }}" "\){{ github.event.inputs.end_date }}"
+      SKIP_EXISTING: "${{ inputs.skip_existing || 'false' }}"
+      START_DATE: "${{ inputs.start_date }}"
+      END_DATE: "${{ inputs.end_date }}"
+    run: python scripts/fetch_toda.py "\(START_DATE" "\)END_DATE"
 
   - name: Commit and push JSON
     run: |
