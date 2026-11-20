@@ -152,6 +152,9 @@ def parse_racelist(hd: str, rno: int) -> dict | None:
             "seriesRanks": series_ranks,
             "seriesOuterTop3": series_outer_top3,
             "exhibitionTime": None,
+            "tilt": None,
+            "exhibitionST": None,
+            "partsChanged": [],
         })
 
     return {
@@ -163,21 +166,56 @@ def parse_racelist(hd: str, rno: int) -> dict | None:
 
 
 def merge_beforeinfo(hd: str, race_data: dict) -> dict:
-    """直前情報ページから展示タイム・気象・風向・安定板装着を取得して結合する"""
+    """直前情報ページから展示タイム・チルト・展示ST・部品交換・気象・風向・安定板装着を取得して結合する"""
     rno = race_data["rno"]
     url = f"https://www.boatrace.jp/owpc/pc/race/beforeinfo?rno={rno}&jcd={JCD}&hd={hd}"
     soup = fetch_soup(url)
     if not soup:
         return race_data
 
-    # 展示タイムの取得
+    # 展示タイム・チルト角度・部品交換の取得
     tbodies = soup.select("tbody.is-fs12")
     for idx, tbody in enumerate(tbodies[:6]):
         tds = tbody.select("tr:first-child td")
+        # 展示タイム (td[4])
         if len(tds) > 4:
             ex_text = tds[4].get_text(strip=True)
             if re.match(r"^\d\.\d{2}$", ex_text):
                 race_data["racers"][idx]["exhibitionTime"] = float(ex_text)
+        # チルト角度 (td[5]) 例: -0.5, 0.0, 0.5, 1.5, 3.0
+        if len(tds) > 5:
+            tilt_text = tds[5].get_text(strip=True).replace("＋", "+").replace("－", "-")
+            if re.match(r"^[+-]?\d+(\.\d+)?$", tilt_text):
+                race_data["racers"][idx]["tilt"] = float(tilt_text)
+        # 部品交換 (td[7]) 例: リング2, キャブ, 電気 など
+        if len(tds) > 7:
+            parts = [
+                s.strip()
+                for s in tds[7].stripped_strings
+                if s.strip() and s.strip() not in ("-", "－", "なし")
+            ]
+            if parts:
+                race_data["racers"][idx]["partsChanged"] = parts
+
+    # スタート展示（各艇の展示ST）の取得
+    for boat_img in soup.select("div.table1_boatImage1"):
+        num_el = boat_img.select_one("span.table1_boatImage1Number")
+        time_el = boat_img.select_one("span.table1_boatImage1Time")
+        if not num_el or not time_el:
+            continue
+        boat_txt = num_el.get_text(strip=True).translate(ZEN_TO_HAN)
+        st_txt = time_el.get_text(strip=True).translate(ZEN_TO_HAN)
+        if not re.match(r"^[1-6]$", boat_txt):
+            continue
+        boat_idx = int(boat_txt) - 1
+        if 0 <= boat_idx < len(race_data["racers"]):
+            # 例: ".08" -> 0.08, "F.02" -> -0.02（フライングは負数で保持）
+            m_f = re.match(r"^F\.?(\d{2})$", st_txt, re.IGNORECASE)
+            m_n = re.match(r"^\.?(\d{2})$", st_txt)
+            if m_f:
+                race_data["racers"][boat_idx]["exhibitionST"] = -round(int(m_f.group(1)) / 100.0, 2)
+            elif m_n:
+                race_data["racers"][boat_idx]["exhibitionST"] = round(int(m_n.group(1)) / 100.0, 2)
 
     # 安定板装着の有無をチェック（ラベル・見出し領域に限定して誤検知を防ぐ）
     notice_texts = " ".join(
