@@ -15,11 +15,12 @@ HEADERS = {
     "Referer": "https://www.boatrace.jp/",
 }
 
-# ブラウザ偽装セッションを作成（Cookieを保持して自然なアクセスにする）
+# ブラウザ偽装セッション（Cookieを維持して自然なアクセスにする）
 session = requests.Session(impersonate="chrome")
 
 
 def fetch_soup(url: str) -> BeautifulSoup | None:
+    """指定URLのHTMLを取得してBeautifulSoupオブジェクトを返す"""
     try:
         res = session.get(url, headers=HEADERS, timeout=15)
         res.raise_for_status()
@@ -29,13 +30,46 @@ def fetch_soup(url: str) -> BeautifulSoup | None:
         return None
 
 
+def to_float(val: str) -> float:
+    """文字列を安全にfloatへ変換する"""
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return 0.0
+
+
+def map_wind_direction(classes: list[str]) -> str:
+    """
+    boatrace.jp の風向アイコンクラス (is-wind1 〜 is-wind16) を
+    アプリ用の風向テキスト（追い風・向かい風・左横風・右横風・無風）へ変換する
+    """
+    wind_num = None
+    for c in classes:
+        m = re.match(r"^is-wind(\d+)$", c)
+        if m:
+            wind_num = int(m.group(1))
+            break
+
+    if wind_num is None or wind_num == 17:
+        return "無風"
+    # boatrace.jp 共通方位アイコン基準（1:北〜16、水面レイアウトに応じた簡易マッピング）
+    if wind_num in (1, 2, 15, 16):
+        return "追い風"
+    if wind_num in (7, 8, 9, 10):
+        return "向かい風"
+    if wind_num in (3, 4, 5, 6):
+        return "左横風"
+    return "右横風"
+
+
 def parse_racelist(hd: str, rno: int) -> dict | None:
+    """出走表ページをパースして6艇分の基本データを返す"""
     url = f"https://www.boatrace.jp/owpc/pc/race/racelist?rno={rno}&jcd={JCD}&hd={hd}"
     soup = fetch_soup(url)
     if not soup:
         return None
 
-    # 非開催日チェック
+    # 非開催日・中止日チェック
     if "データがありません" in soup.text or not soup.select("tbody.is-fs12"):
         return None
 
@@ -53,7 +87,7 @@ def parse_racelist(hd: str, rno: int) -> dict | None:
         name_el = tbody.select_one("div.is-fs18 a")
         name = name_el.get_text(strip=True).replace("\u3000", " ") if name_el else ""
 
-        # F数・L数・平均ST / 全国勝率 / 当地勝率 / モーター / ボート
+        # 出走表テーブル列から各成績を抽出
         tds = tbody.select("tr:first-child td")
 
         def get_lines(td_idx: int) -> list[str]:
@@ -66,12 +100,6 @@ def parse_racelist(hd: str, rno: int) -> dict | None:
         loc_stats = get_lines(5)   # 例: ['6.12', '42.00', '58.00']
         motor_stats = get_lines(6) # 例: ['32', '38.50', '55.20']
         boat_stats = get_lines(7)  # 例: ['15', '35.10', '50.00']
-
-        def to_float(val: str) -> float:
-            try:
-                return float(val)
-            except (ValueError, TypeError):
-                return 0.0
 
         racers.append({
             "boat": idx,
@@ -86,17 +114,19 @@ def parse_racelist(hd: str, rno: int) -> dict | None:
             "motorNo": motor_stats[0] if len(motor_stats) > 0 else "",
             "motor2Rate": to_float(motor_stats[1]) if len(motor_stats) > 1 else 0.0,
             "boat2Rate": to_float(boat_stats[1]) if len(boat_stats) > 1 else 0.0,
-            "exhibitionTime": None,  # 直前情報で補完
+            "exhibitionTime": None,
         })
 
     return {
         "rno": rno,
         "racers": racers,
-        "weather": {}
+        "weather": {},
+        "result": None,
     }
 
 
 def merge_beforeinfo(hd: str, race_data: dict) -> dict:
+    """直前情報ページから展示タイム・気象・風向・安定板装着を取得して結合する"""
     rno = race_data["rno"]
     url = f"https://www.boatrace.jp/owpc/pc/race/beforeinfo?rno={rno}&jcd={JCD}&hd={hd}"
     soup = fetch_soup(url)
@@ -112,47 +142,109 @@ def merge_beforeinfo(hd: str, race_data: dict) -> dict:
             if re.match(r"^\d\.\d{2}$", ex_text):
                 race_data["racers"][idx]["exhibitionTime"] = float(ex_text)
 
-    # 水面気象情報（風速・波高など）
+    # 安定板装着の有無をチェック
+    stabilizer = "安定板" in soup.get_text()
+
+    # 水面気象情報（天候・風向・風速・波高）
     weather_el = soup.select_one("div.weather1")
     if weather_el:
+        cond_el = weather_el.select_one("div.is-weather span.weather1_bodyUnitLabelTitle")
         wind_el = weather_el.select_one("div.is-wind span.weather1_bodyUnitLabelData")
         wave_el = weather_el.select_one("div.is-wave span.weather1_bodyUnitLabelData")
+        wind_dir_el = weather_el.select_one("div.is-windDirection p.weather1_bodyUnitImage")
+        wind_dir = map_wind_direction(wind_dir_el.get("class", [])) if wind_dir_el else "無風"
+
         race_data["weather"] = {
-            "windSpeed": wind_el.get_text(strip=True) if wind_el else "",
-            "waveHeight": wave_el.get_text(strip=True) if wave_el else "",
+            "condition": cond_el.get_text(strip=True) if cond_el else "現地発表",
+            "windDir": wind_dir,
+            "windSpeed": wind_el.get_text(strip=True) if wind_el else "0m",
+            "waveHeight": wave_el.get_text(strip=True) if wave_el else "0cm",
+            "stabilizer": stabilizer,
         }
 
     return race_data
 
 
-def main():
-    # 引数で日付指定（YYYYMMDD）がなければ今日のJST日付を使用
-    if len(sys.argv) > 1 and re.match(r"^\d{8}$", sys.argv[1]):
-        hd = sys.argv[1]
-    else:
-        hd = datetime.now(JST).strftime("%Y%m%d")
+def merge_raceresult(hd: str, race_data: dict) -> dict:
+    """確定済みレースの結果（1〜3着・決まり手・3連単払戻金）を取得して結合する"""
+    rno = race_data["rno"]
+    url = f"https://www.boatrace.jp/owpc/pc/race/raceresult?rno={rno}&jcd={JCD}&hd={hd}"
+    soup = fetch_soup(url)
+    if not soup or "データがありません" in soup.text:
+        return race_data
 
-    print(f"=== 戸田競艇データ取得開始: {hd} ===")
+    # 1〜3着の枠番を抽出
+    order = []
+    for tbody in soup.select("table.is-w495 tbody")[:3]:
+        boat_td = tbody.select_one("td.is-fs14")
+        if boat_td:
+            b_txt = boat_td.get_text(strip=True)
+            if b_txt.isdigit():
+                order.append(int(b_txt))
 
-    # 先にトップページへ一度アクセスしてCookieを取得しておく
-    fetch_soup("https://www.boatrace.jp/")
-    time.sleep(1)
+    if len(order) < 3:
+        return race_data
 
+    # 決まり手を抽出
+    kimarite = ""
+    for th in soup.select("th"):
+        if "決まり手" in th.get_text():
+            table = th.find_parent("table")
+            if table:
+                td = table.select_one("tbody td")
+                if td:
+                    kimarite = td.get_text(strip=True)
+            break
+
+    # 3連単の払戻金を抽出
+    payout_3t = None
+    for tbody in soup.select("table.is-w495 tbody"):
+        if "3連単" in tbody.get_text():
+            payout_el = tbody.select_one("span.is-payout1")
+            if payout_el:
+                digits = re.sub(r"[^\d]", "", payout_el.get_text())
+                if digits:
+                    payout_3t = int(digits)
+            break
+
+    race_data["result"] = {
+        "order": order,
+        "combo": f"{order[0]}-{order[1]}-{order[2]}",
+        "inNige": order[0] == 1,
+        "kimarite": kimarite,
+        "payout3t": payout_3t,
+    }
+    return race_data
+
+
+def fetch_single_day(hd: str, skip_existing: bool = False) -> bool:
+    """指定された1日分（YYYYMMDD）の全12Rを取得してJSON保存する。保存成功ならTrue"""
+    out_path = f"data/toda_{hd}.json"
+    if skip_existing and os.path.exists(out_path):
+        print(f"[SKIP] {out_path} は取得済みのためスキップします。")
+        return False
+
+    print(f"\n=== 戸田競艇データ取得開始: {hd} ===")
     races = {}
 
     for rno in range(1, 13):
-        print(f"Fetching {rno}R...")
+        print(f"  [{hd}] Fetching {rno}R...")
         race_data = parse_racelist(hd, rno)
         if not race_data:
             if rno == 1:
-                print(f"{hd} は戸田の開催がありません。終了します。")
-                sys.exit(0)
+                print(f"  [{hd}] 戸田の開催がありません。スキップします。")
+                return False
             continue
 
-        time.sleep(1)
+        time.sleep(0.7)
         race_data = merge_beforeinfo(hd, race_data)
+        time.sleep(0.7)
+        race_data = merge_raceresult(hd, race_data)
         races[str(rno)] = race_data
-        time.sleep(1)
+        time.sleep(0.7)
+
+    if not races:
+        return False
 
     output = {
         "date": hd,
@@ -163,15 +255,74 @@ def main():
     }
 
     os.makedirs("data", exist_ok=True)
-    out_path = f"data/toda_{hd}.json"
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    # 最新データとして固定名でも保存
-    with open("data/toda_latest.json", "w", encoding="utf-8") as f:
-        json.dump(output, f, ensure_ascii=False, indent=2)
+    print(f"  [OK] 保存完了: {out_path} ({len(races)}レース)")
+    return True
 
-    print(f"保存完了: {out_path} ({len(races)}レース)")
+
+def build_date_list(start_str: str, end_str: str) -> list[str]:
+    """開始日〜終了日（YYYYMMDD）の日付リストを生成する（最大31日間ガード付き）"""
+    start_dt = datetime.strptime(start_str, "%Y%m%d")
+    end_dt = datetime.strptime(end_str, "%Y%m%d")
+    if start_dt > end_dt:
+        start_dt, end_dt = end_dt, start_dt
+
+    days = (end_dt - start_dt).days + 1
+    if days > 31:
+        print(f"[WARN] 期間が長すぎます（{days}日間）。サーバー負荷防止のため最大31日間に制限します。")
+        end_dt = start_dt + timedelta(days=30)
+
+    result = []
+    cur = start_dt
+    while cur <= end_dt:
+        result.append(cur.strftime("%Y%m%d"))
+        cur += timedelta(days=1)
+    return result
+
+
+def main():
+    today_hd = datetime.now(JST).strftime("%Y%m%d")
+    arg1 = sys.argv[1].strip() if len(sys.argv) > 1 else ""
+    arg2 = sys.argv[2].strip() if len(sys.argv) > 2 else ""
+    skip_existing = os.environ.get("SKIP_EXISTING", "false").lower() == "true"
+
+    # 日付リストを決定
+    if re.match(r"^\d{8}$", arg1) and re.match(r"^\d{8}$", arg2):
+        dates = build_date_list(arg1, arg2)
+        is_bulk = True
+    elif re.match(r"^\d{8}$", arg1):
+        dates = [arg1]
+        is_bulk = False
+    else:
+        dates = [today_hd]
+        is_bulk = False
+
+    print(f"対象日数: {len(dates)}日 ({dates[0]} 〜 {dates[-1]}) / skip_existing={skip_existing}")
+
+    # 先にトップページへ一度アクセスしてCookieを取得
+    fetch_soup("https://www.boatrace.jp/")
+    time.sleep(1)
+
+    saved_dates = []
+    for hd in dates:
+        if fetch_single_day(hd, skip_existing=skip_existing):
+            saved_dates.append(hd)
+
+    # toda_latest.json の更新（過去一括取得で古い日付に上書きしないよう制御）
+    if saved_dates:
+        latest_saved = max(saved_dates)
+        should_update_latest = (not is_bulk and latest_saved == today_hd) or (not os.path.exists("data/toda_latest.json"))
+        if should_update_latest:
+            src_path = f"data/toda_{latest_saved}.json"
+            with open(src_path, "r", encoding="utf-8") as f:
+                latest_data = json.load(f)
+            with open("data/toda_latest.json", "w", encoding="utf-8") as f:
+                json.dump(latest_data, f, ensure_ascii=False, indent=2)
+            print(f"[OK] data/toda_latest.json を {latest_saved} で更新しました。")
+
+    print(f"\n=== 全処理完了: 新規保存 {len(saved_dates)}日分 ===")
 
 
 if __name__ == "__main__":
