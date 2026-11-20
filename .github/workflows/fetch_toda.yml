@@ -2,12 +2,11 @@ name: Fetch Toda Boatrace Data
 
 on:
   schedule:
-    # 毎日 8:30 JST (23:30 UTC) に当日分を自動実行
-    - cron: "30 23 * * *"
+    - cron: "0 16 * * *"
   workflow_dispatch:
     inputs:
       start_date:
-        description: "開始日 (YYYYMMDD形式・空欄で本日)"
+        description: "開始日 (YYYYMMDD形式・空欄で前日＋当日を自動取得)"
         required: false
         default: ""
       end_date:
