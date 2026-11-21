@@ -1,20 +1,26 @@
 from __future__ import annotations
 
-import json
 import re
+import traceback
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
-from http.server import BaseHTTPRequestHandler
-from urllib.parse import parse_qs, urlparse
 
+import requests
 from bs4 import BeautifulSoup
-from curl_cffi import requests
+from flask import Flask, jsonify, make_response, request
+
+app = Flask(__name__)
 
 JST = timezone(timedelta(hours=9))
 JCD = "02"  # ボートレース戸田
 TODA_XML_BASE = "https://www.boatrace-toda.jp/xml/kaisai"
 HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36"
+    ),
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
     "Referer": "https://www.boatrace.jp/",
@@ -23,7 +29,6 @@ ZEN_TO_HAN = str.maketrans("０１２３４５６７８９＋－．", "012345678
 
 
 def to_float(val: str | None) -> float | None:
-    """文字列を安全にfloatへ変換する（変換不可はNone）"""
     if val is None:
         return None
     s = str(val).translate(ZEN_TO_HAN).strip()
@@ -38,10 +43,9 @@ def to_float(val: str | None) -> float | None:
         return None
 
 
-def fetch_bytes(url: str, timeout: int = 10) -> bytes | None:
-    """ブラウザ偽装（Chrome）で指定URLのレスポンスボディを取得する"""
+def fetch_bytes(url: str, timeout: int = 8) -> bytes | None:
     try:
-        res = requests.get(url, headers=HEADERS, impersonate="chrome", timeout=timeout)
+        res = requests.get(url, headers=HEADERS, timeout=timeout)
         if res.status_code != 200:
             return None
         return res.content
@@ -50,7 +54,6 @@ def fetch_bytes(url: str, timeout: int = 10) -> bytes | None:
 
 
 def map_wind_direction(classes: list[str]) -> str:
-    """boatrace.jpの風向アイコンクラスを風向テキストへ変換する"""
     wind_num = None
     for c in classes:
         m = re.match(r"^is-wind(\d+)$", c)
@@ -69,7 +72,6 @@ def map_wind_direction(classes: list[str]) -> str:
 
 
 def expand_table_grid(tbody) -> list[list[str]]:
-    """rowspan / colspanを展開してtbodyのセル文字列を2次元配列にする"""
     grid: list[list[str]] = []
     spans: dict[tuple[int, int], str] = {}
     for r_idx, tr in enumerate(tbody.select("tr")):
@@ -95,7 +97,6 @@ def expand_table_grid(tbody) -> list[list[str]]:
 
 
 def fetch_racelist(hd: str, rno: int) -> list[dict] | None:
-    """出走表ページから6艇分の基本データ・今節成績を取得する"""
     url = f"https://www.boatrace.jp/owpc/pc/race/racelist?rno={rno}&jcd={JCD}&hd={hd}"
     raw = fetch_bytes(url)
     if not raw:
@@ -174,7 +175,6 @@ def fetch_racelist(hd: str, rno: int) -> list[dict] | None:
 
 
 def fetch_beforeinfo(hd: str, rno: int) -> dict:
-    """直前情報ページから展示タイム・チルト・展示ST・部品交換・気象情報を取得する"""
     url = f"https://www.boatrace.jp/owpc/pc/race/beforeinfo?rno={rno}&jcd={JCD}&hd={hd}"
     raw = fetch_bytes(url)
     if not raw:
@@ -247,9 +247,8 @@ def fetch_beforeinfo(hd: str, rno: int) -> dict:
 
 
 def fetch_original_xml(hd: str, rno: int) -> dict[int, dict]:
-    """戸田公式オリジナル展示XMLから一周・まわり足・直線タイムを取得する"""
     url = f"{TODA_XML_BASE}/{hd}/race_table_original_{rno:02d}.xml"
-    raw = fetch_bytes(url, timeout=8)
+    raw = fetch_bytes(url, timeout=6)
     if not raw:
         return {}
 
@@ -289,10 +288,9 @@ def fetch_original_xml(hd: str, rno: int) -> dict[int, dict]:
 
 
 def fetch_odds3t(hd: str, rno: int) -> dict[str, float]:
-    """3連単オッズを取得する（戸田公式XMLを優先し、未取得時はboatrace.jpから取得）"""
-    # 1. 軽量な戸田公式オッズXMLを優先試行
+    # 1. 軽量な戸田公式オッズXMLを優先
     xml_url = f"{TODA_XML_BASE}/{hd}/odds_{rno:02d}.xml"
-    raw_xml = fetch_bytes(xml_url, timeout=6)
+    raw_xml = fetch_bytes(xml_url, timeout=5)
     if raw_xml:
         try:
             text = raw_xml.decode("utf-8", errors="ignore").lstrip("\ufeff").strip()
@@ -311,7 +309,7 @@ def fetch_odds3t(hd: str, rno: int) -> dict[str, float]:
 
     # 2. フォールバック：boatrace.jp の3連単オッズページ
     url = f"https://www.boatrace.jp/owpc/pc/race/odds3t?rno={rno}&jcd={JCD}&hd={hd}"
-    raw = fetch_bytes(url, timeout=10)
+    raw = fetch_bytes(url, timeout=8)
     if not raw:
         return {}
     soup = BeautifulSoup(raw, "html.parser")
@@ -338,9 +336,8 @@ def fetch_odds3t(hd: str, rno: int) -> dict[str, float]:
 
 
 def fetch_raceresult(hd: str, rno: int) -> dict | None:
-    """boatrace.jp の結果ページから確定着順・決まり手・3連単払戻金を取得する"""
     url = f"https://www.boatrace.jp/owpc/pc/race/raceresult?rno={rno}&jcd={JCD}&hd={hd}"
-    raw = fetch_bytes(url, timeout=10)
+    raw = fetch_bytes(url, timeout=8)
     if not raw:
         return None
     soup = BeautifulSoup(raw, "html.parser")
@@ -404,7 +401,6 @@ def fetch_raceresult(hd: str, rno: int) -> dict | None:
 
 
 def fetch_race_bundle(hd: str, rno: int) -> dict | None:
-    """5つのデータソースを並列取得し、1レース分の統合JSONを構築する"""
     with ThreadPoolExecutor(max_workers=5) as ex:
         fut_list = ex.submit(fetch_racelist, hd, rno)
         fut_before = ex.submit(fetch_beforeinfo, hd, rno)
@@ -421,7 +417,6 @@ def fetch_race_bundle(hd: str, rno: int) -> dict | None:
         odds3t = fut_odds.result()
         result = fut_res.result()
 
-    # 直前情報とオリジナル展示を各艇へマージ
     before_boats = before.get("boats", {})
     for rc in racers:
         b_no = rc["boat"]
@@ -441,50 +436,50 @@ def fetch_race_bundle(hd: str, rno: int) -> dict | None:
     }
 
 
-class handler(BaseHTTPRequestHandler):
-    """Vercel Python Serverless Function エントリポイント"""
+def build_cors_json(payload: dict, status: int = 200, cache_control: str = "no-store"):
+    resp = make_response(jsonify(payload), status)
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    resp.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    resp.headers["Cache-Control"] = cache_control
+    return resp
 
-    def _send_json(self, status_code: int, payload: dict, cache_control: str = "no-store"):
-        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        self.send_response(status_code)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.send_header("Cache-Control", cache_control)
-        self.end_headers()
-        self.wfile.write(body)
 
-    def do_OPTIONS(self):
-        self.send_response(204)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.end_headers()
+@app.route("/", methods=["GET", "OPTIONS"])
+@app.route("/api/race", methods=["GET", "OPTIONS"])
+def race_endpoint():
+    if request.method == "OPTIONS":
+        return build_cors_json({}, 204)
 
-    def do_GET(self):
-        qs = parse_qs(urlparse(self.path).query)
-        raw_date = (qs.get("date") or [""])[0]
-        raw_rno = (qs.get("rno") or [""])[0]
+    try:
+        raw_date = request.args.get("date", "")
+        raw_rno = request.args.get("rno", "")
 
         hd = re.sub(r"\D", "", raw_date)
         if len(hd) != 8:
-            self._send_json(400, {"error": "date は YYYYMMDD または YYYY-MM-DD 形式で指定してください"})
-            return
+            return build_cors_json(
+                {"error": "date は YYYYMMDD または YYYY-MM-DD 形式で指定してください"},
+                400,
+            )
 
         try:
             rno = int(raw_rno)
             if not (1 <= rno <= 12):
                 raise ValueError
         except ValueError:
-            self._send_json(400, {"error": "rno は 1〜12 の数字で指定してください"})
-            return
+            return build_cors_json({"error": "rno は 1〜12 の数字で指定してください"}, 400)
 
         data = fetch_race_bundle(hd, rno)
         if not data:
-            self._send_json(404, {"error": f"{hd} の戸田 {rno}R データが見つかりません（非開催日など）"})
-            return
+            return build_cors_json(
+                {"error": f"{hd} の戸田 {rno}R データが見つかりません（非開催日など）"},
+                404,
+            )
 
-        # 確定済みレースはVercelエッジに長期キャッシュして次回0.1秒応答にする
         cache_hdr = "public, max-age=3600, s-maxage=86400" if data.get("result") else "no-store"
-        self._send_json(200, data, cache_control=cache_hdr)
+        return build_cors_json(data, 200, cache_control=cache_hdr)
+    except Exception as e:
+        return build_cors_json(
+            {"error": str(e), "trace": traceback.format_exc().splitlines()[-3:]},
+            500,
+        )
