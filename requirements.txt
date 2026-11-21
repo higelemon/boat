@@ -1,3 +1,5 @@
-curl_cffi
+flask
+
+requests
 
 beautifulsoup4
